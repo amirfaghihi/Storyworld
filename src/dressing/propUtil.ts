@@ -317,7 +317,9 @@ export const disc = (r: number, th: number, seg = 14) => {
 export function gableRoof(width: number, length: number): THREE.BufferGeometry {
   const r = (width * 1.18) / Math.sqrt(3)
   const g = new THREE.CylinderGeometry(r, r, length * 1.08, 3)
-  g.rotateX(Math.PI / 2)
-  g.rotateZ(Math.PI / 2)
+  // the prism's axis along z with one edge straight up: apex at y = r, base at -r/2, eaves at
+  // ±0.59 w. (Rotating about x and then z, as this once did, laid it on its side: every roof
+  // was a lean-to wedge with its ridge out past one wall.)
+  g.rotateX(-Math.PI / 2)
   return g
 }
