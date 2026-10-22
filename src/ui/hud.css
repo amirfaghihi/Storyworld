@@ -1,0 +1,861 @@
+/*
+ * Surface layouts for the HUD and the panels around it: the top bar, hint, toast, portal prompt, lore card,
+ * dialogs (codex, worlds), editor, touch controls and loading screen. Imported from Hud.tsx, so it loads
+ * after tokens.css, kit.css and styles.css. The generic parts (buttons, tooltip, toolbar, chip, popover,
+ * segmented control, range, tiles) live in kit.css; this file only places and dresses surfaces.
+ * Every colour is a token, so each surface follows the day/night tone on <html data-scene>.
+ *
+ * Never nest a .sw-popover inside a .sw-glass element (see kit.css): the settings popover is a sibling of
+ * the toolbar inside .hud-actions, the sky popover a sibling of the chip inside .sw-popover-anchor.
+ */
+
+/* ============ shared bits the kit leaves to surfaces ============ */
+/* Key badges anywhere (the hint, the editor header, the portal prompt). The kit styles kbd inside its own
+   parts with the same values; this covers the rest. */
+kbd,
+.sw-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: var(--r-xs);
+  font: 600 var(--text-2xs) / 1 var(--font-mono);
+  color: var(--kbd-ink);
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  box-shadow: inset 0 -1px 0 var(--kbd-border);
+  vertical-align: 1px;
+  text-shadow: none;
+}
+/* utilities older markup still uses; colour, not opacity, so text keeps its contrast on either tone */
+.muted {
+  color: var(--ink-2);
+}
+.small {
+  font-size: var(--text-xs);
+}
+.eyebrow {
+  font: 600 var(--text-2xs) / 1.2 var(--font-ui);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.sw-medallion {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.sw-medallion > .sw-icon {
+  width: 22px;
+  height: 22px;
+}
+.sw-progress {
+  height: 4px;
+  margin-top: 14px;
+  border-radius: 2px;
+  background: var(--track);
+  overflow: hidden;
+}
+.sw-progress > div {
+  height: 100%;
+  width: var(--p, 0%);
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--dur-4) var(--ease-out);
+}
+.sw-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font: 600 var(--text-2xs) / 1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ============ HUD layout ============ */
+/* One fixed row: the location plate on the left, the chip and toolbar on the right. The row itself lets
+   clicks through to the world; only its controls take them. */
+.hud-top {
+  position: fixed;
+  z-index: var(--z-hud);
+  top: var(--hud-top);
+  left: var(--hud-left);
+  right: var(--hud-right);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+.hud-actions {
+  position: relative; /* anchors the settings popover to the toolbar's right edge */
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hud-gap);
+  flex: none;
+}
+.hud-location {
+  flex: 0 1 auto; /* shrinks into whatever the actions leave (layout-check: >= 140 px from 601 to 1400 px) */
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  max-width: 360px;
+  box-sizing: border-box;
+  padding: 10px 14px 12px;
+  border-radius: var(--r-lg);
+  pointer-events: none; /* information only: clicks fall through to the world */
+}
+.hud-location__crumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.hud-location__crumbs > .sw-icon {
+  width: 11px;
+  height: 11px;
+  opacity: 0.7;
+}
+.hud-location__crumbs > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-location__title {
+  margin: 0;
+  font: 500 var(--text-2xl) / var(--leading-tight) var(--font-display);
+  letter-spacing: 0.005em;
+  color: var(--ink);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.hud-location__lore {
+  margin: 4px 0 0;
+  font: var(--text-sm) / 1.4 var(--font-ui);
+  color: var(--ink-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hud-location__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.hud-location .sw-btn {
+  pointer-events: auto;
+}
+.hud-hint {
+  position: fixed;
+  z-index: var(--z-hud);
+  left: var(--hud-left);
+  bottom: var(--hud-bottom);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  box-sizing: border-box;
+  max-width: min(720px, calc(100vw - var(--hud-minimap-h, var(--minimap-size)) - var(--hud-left) - var(--hud-right) - 24px));
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  font: 500 var(--text-xs) / 1.3 var(--font-ui);
+  color: var(--ink-2);
+  pointer-events: none;
+  transition: opacity var(--dur-4) var(--ease-in-out), transform var(--dur-4) var(--ease-in-out);
+}
+.hud-hint b {
+  color: var(--ink);
+}
+.hud-hint > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.hud-hint[data-hidden='true'] {
+  opacity: 0;
+  transform: translateY(6px);
+}
+/* positions the minimap; what it draws, and its own size, belong to Minimap.tsx */
+.hud-minimap {
+  position: fixed;
+  z-index: var(--z-hud);
+  right: var(--hud-right);
+  bottom: var(--hud-bottom);
+  line-height: 0;
+}
+/* the controls list in Settings: let a longer label wrap rather than cut off */
+.hud-actions .sw-keys > div {
+  align-items: flex-start;
+}
+.hud-actions .sw-keys dd {
+  white-space: normal;
+  line-height: 18px;
+}
+
+/* ============ toast + portal prompt ============ */
+.toast {
+  position: fixed;
+  z-index: var(--z-toast);
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--floating-ink);
+  text-shadow: var(--floating-shadow);
+  pointer-events: none;
+  animation: sw-toast 3.2s var(--ease-out) forwards;
+}
+.toast::before {
+  /* a soft vignette behind the words so they hold over a bright sky */
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -40% -30%;
+  background: radial-gradient(closest-side, rgb(20 14 8 / 0.42), transparent);
+}
+.toast span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 var(--text-xs) / 1 var(--font-ui);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.toast span::before,
+.toast span::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+.toast b {
+  font: 500 var(--text-3xl) / 1.05 var(--font-display);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+@keyframes sw-toast {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes sw-toast-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  8%,
+  85% {
+    opacity: 1;
+  }
+}
+.portal-prompt {
+  position: fixed;
+  z-index: var(--z-toast);
+  left: 50%;
+  bottom: calc(var(--hud-bottom) + 84px);
+  max-width: calc(100vw - var(--hud-left) - var(--hud-right));
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-2);
+  animation: sw-rise var(--dur-3) var(--ease-out);
+}
+.portal-prompt:active {
+  transform: translateX(-50%) translateY(1px) scale(0.98);
+}
+@keyframes sw-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+/* ============ lore card ============ */
+/* Opaque enough to need no backdrop blur (it would re-blur the live canvas under a big area every frame). */
+.lore-card {
+  position: fixed;
+  z-index: var(--z-card);
+  right: var(--hud-right);
+  top: var(--hud-below-bar);
+  width: 360px;
+  max-height: calc(100dvh - var(--hud-below-bar) - var(--hud-minimap-h, var(--minimap-size)) - var(--hud-bottom) - 16px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  padding: 14px 16px 16px 18px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--highlight), var(--shadow-2);
+  color: var(--ink);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+  animation: sw-rise var(--dur-3) var(--ease-out);
+  transition: background-color var(--dur-4) var(--ease-in-out), color var(--dur-4) var(--ease-in-out);
+}
+.lore-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.lore-card__heading {
+  min-width: 0;
+  padding-top: 4px;
+}
+.lore-card__actions {
+  display: flex;
+  gap: 2px;
+  flex: none;
+  margin-right: -6px;
+}
+.lore-card h2 {
+  margin: 4px 0 10px;
+  font: 500 var(--text-xl) / var(--leading-tight) var(--font-display);
+  text-wrap: balance;
+}
+.lore-card h3 {
+  margin: 14px 0 6px;
+  font: 600 var(--text-2xs) / 1.2 var(--font-ui);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.lore-card p {
+  margin: 0;
+  font: 15px / var(--leading-body) var(--font-display);
+}
+.lore-card p.setting {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  font: italic 14px / 1.5 var(--font-display);
+  color: var(--ink);
+}
+.lore-card p.setting .eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-style: normal;
+}
+.lore-card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lore-card li {
+  padding: 8px 0;
+  border-top: 1px solid var(--divider);
+  font: 14px / 1.45 var(--font-display);
+}
+.lore-card .ref {
+  display: block;
+  margin-bottom: 2px;
+  font: 600 var(--text-2xs) / 1.3 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.lore-card .chars {
+  margin-top: 10px;
+  font: italic var(--text-sm) / 1.4 var(--font-display);
+  color: var(--ink-2);
+}
+.lore-card .sw-link {
+  margin-top: 12px;
+}
+.lore-card.collapsed {
+  max-height: none;
+  overflow: hidden;
+  padding-bottom: 10px;
+}
+.lore-card.collapsed > *:not(header) {
+  display: none;
+}
+.lore-card.collapsed h2 {
+  margin-bottom: 0;
+  font-size: var(--text-lg);
+}
+.lore-card .lore-toggle > .sw-icon {
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.lore-card.collapsed .lore-toggle > .sw-icon {
+  transform: rotate(-90deg);
+}
+
+/* ============ dialogs: codex, worlds (and the scrim the map overlay shares) ============ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog);
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+  backdrop-filter: blur(6px) saturate(0.9);
+  animation: sw-fade var(--dur-3) var(--ease-out);
+}
+@keyframes sw-fade {
+  from {
+    opacity: 0;
+  }
+}
+.overlay.codex {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: var(--hud-top) var(--hud-right) var(--hud-bottom) var(--hud-left);
+}
+.panel {
+  position: relative;
+  box-sizing: border-box;
+  width: min(580px, 100%);
+  max-height: min(84dvh, 760px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 20px 22px 18px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+  box-shadow: var(--highlight), var(--shadow-3);
+  color: var(--ink);
+  animation: sw-dialog-in var(--dur-3) var(--ease-out);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+@keyframes sw-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+.panel header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.panel h2 {
+  margin: 0;
+  font: 500 26px / 1.1 var(--font-display);
+}
+.panel header .sw-caption {
+  margin: 2px 0 0;
+}
+.panel footer {
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-size: var(--text-xs);
+}
+.codex-empty {
+  margin: 14px 0 0;
+}
+.codex-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.codex-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-top: 1px solid var(--divider);
+}
+.codex-list li:first-child {
+  border-top: 0;
+}
+.codex-list .link {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  min-height: var(--ctl-h);
+  padding: 6px 10px;
+  margin-left: -10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+.codex-list .link:hover {
+  background: var(--surface-hover);
+}
+.codex-list .link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.codex-list .link b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 var(--text-lg) / 1.2 var(--font-display);
+}
+.world-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.world-list button {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.world-list button > .sw-icon {
+  color: var(--ink-2);
+}
+.world-list button:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-1);
+  transform: translateY(-1px);
+}
+.world-list button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.world-list li.current button {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.world-list li.current button:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--accent), var(--focus-ring);
+}
+.world-list b {
+  display: block;
+  font: 500 var(--text-xl) / 1.15 var(--font-display);
+}
+.world-list .sw-eyebrow,
+.world-list .sw-caption {
+  display: block;
+  margin-top: 4px;
+}
+
+/* ============ editor panel ============ */
+/* Sits under the location plate, whose measured height Hud writes to --hud-plate-h. */
+.editor {
+  position: fixed;
+  z-index: var(--z-editor);
+  left: var(--hud-left);
+  top: calc(var(--hud-top) + var(--hud-plate-h) + 12px);
+  width: 300px;
+  max-width: calc(100vw - var(--hud-left) - var(--hud-right));
+  max-height: calc(100dvh - var(--hud-top) - var(--hud-plate-h) - 12px - var(--hud-bottom) - 48px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--highlight), var(--shadow-2);
+  color: var(--ink);
+  font: var(--text-sm) / 1.4 var(--font-ui);
+}
+.editor header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.editor .tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.editor .tools .sw-btn {
+  padding: 0 6px;
+}
+.editor .row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.editor .row.buttons {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.editor label span {
+  float: right;
+  color: var(--ink-2);
+}
+.editor input:not([type='range']),
+.editor select {
+  height: var(--ctl-h-sm);
+  box-sizing: border-box;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-solid);
+  color: var(--ink);
+  font: var(--text-sm) / 1 var(--font-ui);
+}
+.editor input:focus-visible,
+.editor select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.editor .status {
+  padding-top: 8px;
+  border-top: 1px solid var(--divider);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+
+/* ============ touch ============ */
+.stick {
+  position: fixed;
+  z-index: var(--z-touch);
+  width: 128px;
+  height: 128px;
+  margin: -64px 0 0 -64px;
+  border-radius: 50%;
+  background: rgb(var(--surface-rgb) / 0.22);
+  border: 2px solid rgb(var(--surface-rgb) / 0.6);
+  pointer-events: none;
+}
+.stick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-1);
+}
+/* the run toggle: a 64 px glass disc above the minimap, accent-filled while running */
+.sw-fab {
+  position: fixed;
+  z-index: var(--z-touch);
+  right: var(--hud-right);
+  bottom: calc(var(--hud-bottom) + var(--hud-minimap-h, var(--minimap-size)) + 20px);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  padding: 0;
+  font: 600 var(--text-2xs) / 1 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  touch-action: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.sw-fab > .sw-icon {
+  width: 24px;
+  height: 24px;
+}
+.sw-fab[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.sw-fab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============ loading ============ */
+/* Always the night palette: it shows before any world (and any scene tone) exists. */
+.loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: var(--cream-100);
+  background: radial-gradient(ellipse at center, #2f3a52 0%, #1a1d2b 70%);
+}
+.loading-title {
+  font: 500 var(--text-3xl) / 1 var(--font-display);
+  letter-spacing: 0.12em;
+}
+.loading-sub {
+  margin-top: 10px;
+  font: var(--text-md) / 1.3 var(--font-ui);
+  color: var(--cream-300);
+}
+.loading-bar {
+  margin: 24px auto 0;
+  width: 220px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 240 210 / 0.15);
+  overflow: hidden;
+}
+.loading-bar div {
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ember-300), var(--gold-400));
+  animation: sw-slide 1.2s var(--ease-in-out) infinite;
+}
+@keyframes sw-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+@keyframes sw-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ============ responsive ============ */
+@media (max-width: 760px) {
+  .hud-location {
+    max-width: 320px;
+    padding: 8px 12px 10px;
+  }
+  .hud-location__title {
+    font-size: var(--text-xl);
+  }
+  .hud-location__lore,
+  .hud-hint {
+    display: none;
+  }
+  /* phones: the lore card is a sheet along the bottom, folded to its title until opened */
+  .lore-card {
+    left: var(--hud-left);
+    right: var(--hud-right);
+    top: auto;
+    bottom: var(--hud-bottom);
+    width: auto;
+    max-height: 42dvh;
+  }
+  .lore-card header {
+    cursor: pointer;
+  }
+  .toast b {
+    font-size: var(--text-2xl);
+  }
+  .portal-prompt {
+    bottom: 46dvh;
+  }
+}
+/* Just above phone width the chip sits far enough left that its 300 px popover would run off the left
+   edge (layout-check: x = 15 at 601 px). There it hangs from the toolbar's right edge instead, as Settings does. */
+@media (min-width: 601px) and (max-width: 700px) {
+  .hud-actions .sw-popover-anchor {
+    position: static;
+  }
+}
+/* phones: the actions take the first row (right), the location plate goes under them */
+@media (max-width: 600px) {
+  .hud-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .hud-actions {
+    order: -1;
+    align-self: flex-end;
+    gap: 6px;
+  }
+  .hud-location {
+    align-self: flex-start;
+    max-width: 100%;
+  }
+  .editor {
+    top: calc(var(--hud-top) + var(--bar-h) + 8px + var(--hud-plate-h) + 12px);
+    max-height: calc(100dvh - var(--hud-top) - var(--bar-h) - 8px - var(--hud-plate-h) - 12px - var(--hud-bottom));
+  }
+  .panel {
+    padding: 16px 16px 14px;
+  }
+  .panel h2 {
+    font-size: var(--text-xl);
+  }
+  .world-list button {
+    gap: 10px;
+    padding: 12px;
+  }
+}
+
+/* ============ reduced motion ============ */
+/* tokens.css zeroes every --dur; what is left is movement that is not a transition. */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: sw-toast-fade 3.2s linear forwards;
+  }
+  .loading-bar div {
+    width: 100%;
+    animation: sw-pulse 1.6s ease-in-out infinite;
+  }
+  .lore-card,
+  .panel,
+  .overlay,
+  .portal-prompt {
+    animation: none;
+  }
+  .portal-prompt:active {
+    transform: translateX(-50%);
+  }
+  .world-list button:hover {
+    transform: none;
+  }
+  .hud-hint[data-hidden='true'] {
+    transform: none;
+  }
+}

@@ -1,0 +1,787 @@
+/*
+ * Storyworld UI kit: the generic parts every surface shares (buttons, tooltips, toolbar, sky chip,
+ * popover, segmented control, range, tiles, controls list). Everything reads tokens.css; every class
+ * carries the `sw-` prefix so nothing here restyles markup that has not opted in.
+ * Surface layouts (HUD, lore card, dialogs, map, editor, touch) live in their own stylesheets.
+ *
+ * Never nest a .sw-popover inside a .sw-glass element: backdrop-filter makes the glass the containing
+ * block of position:fixed descendants and the backdrop root of nested blurs, so the popover would be
+ * clipped and see only the glass behind it. Make it a sibling inside a .sw-popover-anchor instead.
+ */
+
+/* ============ base ============ */
+.sw-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.sw-icon {
+  display: block;
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+}
+/* Key badges inside kit parts. Bare kbd elsewhere is styled by hud.css; claiming every kbd here would
+   leak this badge's height and grid layout into the HUD's own key hints. */
+.sw-kbd,
+:is(.sw-btn, .sw-chip, .sw-tip, .sw-glass, .sw-popover, .sw-keys) kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: var(--r-xs);
+  font: 600 var(--text-2xs) / 1 var(--font-mono);
+  color: var(--kbd-ink);
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  box-shadow: inset 0 -1px 0 var(--kbd-border);
+  vertical-align: 1px;
+  text-shadow: none;
+}
+.sw-glass {
+  background: var(--surface);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--border);
+  box-shadow: var(--highlight), var(--shadow-1);
+  color: var(--ink);
+  transition: background-color var(--dur-4) var(--ease-in-out), color var(--dur-4) var(--ease-in-out), border-color var(--dur-4) var(--ease-in-out);
+}
+.sw-eyebrow {
+  font: 600 var(--text-2xs) / 1.2 var(--font-ui);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.sw-caption {
+  margin: 0;
+  font: var(--text-sm) / 1.4 var(--font-ui);
+  color: var(--ink-2);
+}
+.sw-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-text);
+  font: 600 var(--text-sm) / 1.3 var(--font-ui);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+.sw-link .sw-icon {
+  width: 14px;
+  height: 14px;
+}
+.sw-link:hover {
+  text-decoration-thickness: 2px;
+}
+.sw-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============ buttons ============ */
+.sw-btn {
+  --btn-h: var(--ctl-h);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: var(--btn-h);
+  min-width: var(--btn-h);
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--ink);
+  font: 600 var(--text-md) / 1 var(--font-ui);
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+.sw-btn > .sw-icon {
+  width: var(--icon);
+  height: var(--icon);
+}
+.sw-btn:hover {
+  background: var(--surface-hover);
+}
+.sw-btn:active {
+  background: var(--surface-active);
+  transform: translateY(1px) scale(0.97);
+}
+.sw-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  z-index: 1;
+}
+/* popover trigger while its popover is open */
+.sw-btn[aria-expanded='true'] {
+  background: var(--surface-active);
+}
+/* toggle buttons (mute, editor, freeze) */
+.sw-btn[aria-pressed='true'] {
+  background: var(--surface-active);
+  color: var(--accent-text);
+}
+.sw-btn:disabled,
+.sw-btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: transparent;
+  transform: none;
+}
+/* shapes and sizes */
+.sw-btn--icon {
+  width: var(--btn-h);
+  padding: 0;
+}
+.sw-btn--sm {
+  --btn-h: var(--ctl-h-sm);
+  padding: 0 11px;
+  gap: 6px;
+  border-radius: var(--r-sm);
+  font-size: var(--text-sm);
+}
+.sw-btn--sm > .sw-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.sw-btn--sm.sw-btn--icon {
+  padding: 0;
+}
+.sw-btn--lg {
+  --btn-h: var(--ctl-h-lg);
+  padding: 0 20px 0 16px;
+  gap: 10px;
+  border-radius: var(--r-pill);
+  font-size: var(--text-lg);
+}
+.sw-btn--lg > .sw-icon {
+  width: 22px;
+  height: 22px;
+}
+.sw-btn--pill {
+  border-radius: var(--r-pill);
+}
+/* variants */
+.sw-btn--solid {
+  background: var(--surface-strong);
+  border-color: var(--border);
+  box-shadow: var(--highlight), var(--shadow-1);
+}
+.sw-btn--solid:hover {
+  background: var(--surface-strong);
+  border-color: var(--border-strong);
+}
+.sw-btn--outline {
+  border-color: var(--border-strong);
+}
+.sw-btn--soft {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.sw-btn--soft:hover {
+  background: var(--accent-soft-hover);
+}
+.sw-btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: rgb(0 0 0 / 0.08);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 1px 2px rgb(60 20 10 / 0.3), var(--shadow-1);
+}
+.sw-btn--primary:hover {
+  background: var(--accent-hover);
+}
+.sw-btn--primary:active {
+  background: var(--accent-hover);
+}
+.sw-btn--primary .sw-kbd,
+.sw-btn--primary kbd {
+  color: var(--accent-ink);
+  background: rgb(255 255 255 / 0.16);
+  border-color: rgb(255 255 255 / 0.3);
+  box-shadow: none;
+}
+.sw-btn--danger {
+  color: var(--danger);
+}
+.sw-btn--danger:hover {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+/* labelled buttons that collapse to icon-only on narrow screens (Map / Codex / Worlds) */
+.sw-btn--collapsible .sw-btn__label {
+  display: none;
+}
+@media (min-width: 1100px) and (pointer: fine) {
+  .sw-btn--collapsible.sw-btn--icon {
+    width: auto;
+    padding: 0 14px 0 11px;
+  }
+  .sw-btn--collapsible .sw-btn__label {
+    display: inline;
+  }
+}
+
+/* ============ tooltip ============ */
+.sw-tip-host {
+  position: relative;
+  display: inline-flex;
+}
+.sw-tip {
+  position: absolute;
+  z-index: var(--z-tooltip);
+  top: calc(100% + 8px);
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--tip-border);
+  background: var(--tip-bg);
+  color: var(--tip-ink);
+  font: 500 var(--text-sm) / 1.2 var(--font-ui);
+  letter-spacing: 0;
+  white-space: nowrap;
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -4px);
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+  transition-delay: 0ms;
+}
+.sw-tip[data-side='top'] {
+  top: auto;
+  bottom: calc(100% + 8px);
+  transform: translate(-50%, 4px);
+}
+.sw-tip[data-align='end'] {
+  left: auto;
+  right: 0;
+  transform: translate(0, -4px);
+}
+.sw-tip[data-align='start'] {
+  left: 0;
+  transform: translate(0, -4px);
+}
+.sw-tip .sw-kbd {
+  color: var(--tip-ink);
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(255 255 255 / 0.24);
+  box-shadow: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.sw-btn, .sw-tip-host, .sw-chip):hover > .sw-tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    transition-delay: var(--tip-delay);
+  }
+  :is(.sw-btn, .sw-tip-host, .sw-chip):hover > .sw-tip:is([data-align='end'], [data-align='start']) {
+    transform: none;
+  }
+}
+:is(.sw-btn, .sw-chip):focus-visible > .sw-tip,
+.sw-tip-host:focus-within > .sw-tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0ms;
+}
+:is(.sw-btn, .sw-chip):focus-visible > .sw-tip:is([data-align='end'], [data-align='start']) {
+  transform: none;
+}
+/* never cover an open popover, and get out of the way on press */
+:is(.sw-btn, .sw-chip):is([aria-expanded='true'], :active) > .sw-tip {
+  opacity: 0 !important;
+  transition-delay: 0ms !important;
+}
+
+/* ============ toolbar ============ */
+.sw-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--bar-h);
+  padding: 0 var(--bar-pad);
+  box-sizing: border-box;
+  border-radius: calc(var(--r-md) + var(--bar-pad));
+  pointer-events: auto;
+}
+.sw-toolbar__sep {
+  flex: none;
+  width: 1px;
+  height: calc(var(--ctl-h) - 16px);
+  margin: 0 5px;
+  background: var(--divider);
+}
+
+/* ============ sky chip (time + weather) ============ */
+.sw-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--bar-h);
+  padding: 0 14px 0 12px;
+  box-sizing: border-box;
+  border-radius: calc(var(--r-md) + var(--bar-pad));
+  font: 600 var(--text-md) / 1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.sw-chip:hover {
+  border-color: var(--border-strong);
+}
+.sw-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.sw-chip[aria-expanded='true'] {
+  border-color: var(--border-strong);
+  box-shadow: var(--highlight), var(--shadow-2);
+}
+.sw-chip__phase,
+.sw-chip__weather,
+.sw-chip__paused {
+  display: inline-grid;
+}
+.sw-chip__phase > .sw-icon,
+.sw-chip__weather > .sw-icon {
+  display: none;
+}
+.sw-chip__weather > .sw-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--ink-2);
+}
+.sw-chip[data-phase='day'] .sw-chip__phase > [data-k='day'],
+.sw-chip[data-phase='night'] .sw-chip__phase > [data-k='night'],
+.sw-chip[data-weather='cloudy'] .sw-chip__weather > [data-k='cloudy'],
+.sw-chip[data-weather='rain'] .sw-chip__weather > [data-k='rain'],
+.sw-chip[data-weather='storm'] .sw-chip__weather > [data-k='storm'],
+.sw-chip[data-weather='snow'] .sw-chip__weather > [data-k='snow'],
+.sw-chip[data-weather='mist'] .sw-chip__weather > [data-k='mist'],
+.sw-chip[data-weather='ash'] .sw-chip__weather > [data-k='ash'] {
+  display: block;
+}
+/* clear weather: the sun/moon already says it */
+.sw-chip[data-weather='clear'] .sw-chip__weather {
+  display: none;
+}
+.sw-chip__paused {
+  display: none;
+  color: var(--accent-text);
+}
+.sw-chip__paused > .sw-icon {
+  width: 14px;
+  height: 14px;
+}
+.sw-chip[data-paused='true'] .sw-chip__paused {
+  display: inline-grid;
+}
+.sw-chip[data-paused='true'] .sw-chip__time {
+  color: var(--accent-text);
+}
+
+/* ============ popover ============ */
+.sw-popover-anchor {
+  position: relative;
+  display: inline-flex;
+}
+.sw-popover {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 10px);
+  right: 0; /* .hud-actions or .sw-popover-anchor is the positioning parent; never a .sw-glass element */
+  width: var(--popover-w, 300px);
+  max-height: calc(100dvh - var(--hud-below-bar) - var(--hud-bottom));
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--highlight), var(--shadow-2);
+  color: var(--ink);
+  font: var(--text-sm) / 1.4 var(--font-ui);
+  text-align: left;
+  pointer-events: auto;
+  transform-origin: top right;
+  animation: sw-pop var(--dur-3) var(--ease-out);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.sw-popover[data-align='start'] {
+  right: auto;
+  left: 0;
+  transform-origin: top left;
+}
+.sw-popover:focus-visible {
+  outline: none;
+}
+@keyframes sw-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+.sw-section {
+  display: grid;
+  gap: 10px;
+}
+.sw-section + .sw-section {
+  border-top: 1px solid var(--divider);
+  padding-top: 14px;
+}
+.sw-section__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+.sw-section__title > .sw-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--ink-2);
+}
+.sw-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sw-row > .sw-range {
+  flex: 1;
+}
+.sw-value {
+  min-width: 36px;
+  text-align: right;
+  font: 600 var(--text-sm) / 1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.sw-sky-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sw-sky-time {
+  font: 500 26px / 1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============ segmented control ============ */
+.sw-seg {
+  --n: 4;
+  --i: 0;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  padding: 3px;
+  border-radius: calc(var(--r-sm) + 3px);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+.sw-seg::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--n));
+  transform: translateX(calc(var(--i) * 100%));
+  border-radius: var(--r-sm);
+  background: var(--seg-thumb);
+  box-shadow: 0 1px 2px rgb(20 14 8 / 0.14), 0 1px 6px rgb(20 14 8 / 0.08);
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+.sw-seg__opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--ctl-h-sm);
+  min-width: 0;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-2);
+  font: 500 var(--text-sm) / 1 var(--font-ui);
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease-out);
+}
+.sw-seg__opt > .sw-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.sw-seg__opt:hover {
+  color: var(--ink);
+}
+.sw-seg__opt[aria-checked='true'] {
+  color: var(--ink);
+  font-weight: 600;
+}
+.sw-seg__opt:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============ range ============ */
+.sw-range {
+  --fill: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.sw-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) var(--fill), var(--track) var(--fill));
+}
+.sw-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+}
+.sw-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+.sw-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #fffdf8;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.sw-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fffdf8;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-1);
+}
+.sw-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+.sw-range:focus-visible {
+  outline: none;
+}
+.sw-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: var(--focus-ring);
+}
+.sw-range:focus-visible::-moz-range-thumb {
+  box-shadow: var(--focus-ring);
+}
+.sw-range:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* the time slider is a ribbon of the day's sky (stops from timeOfDay.ts KEYS: h / 24) */
+.sw-range--sky::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #1b2a5c 0%, #33407a 19%, #c86a5a 24%, #ffb070 28.3%, #bfe0ff 35.4%, #bfe0ff 66.7%, #ffb264 77.5%, #ff6a32 82.5%, #4a3f86 87%, #1b2a5c 92.5%, #1b2a5c 100%);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.sw-range--sky::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #1b2a5c 0%, #33407a 19%, #c86a5a 24%, #ffb070 28.3%, #bfe0ff 35.4%, #bfe0ff 66.7%, #ffb264 77.5%, #ff6a32 82.5%, #4a3f86 87%, #1b2a5c 92.5%, #1b2a5c 100%);
+}
+.sw-range--sky::-moz-range-progress {
+  background: transparent;
+}
+.sw-range--sky::-webkit-slider-thumb {
+  margin-top: -5px;
+}
+@media (pointer: coarse) {
+  .sw-range {
+    height: 44px;
+  }
+  .sw-range::-webkit-slider-thumb {
+    width: 26px;
+    height: 26px;
+    margin-top: -10px;
+  }
+  .sw-range--sky::-webkit-slider-thumb {
+    margin-top: -9px;
+  }
+  .sw-range::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* ============ button group (time presets) and tiles (weather) ============ */
+.sw-btn-group {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), 1fr);
+  gap: 6px;
+}
+.sw-btn-group > .sw-btn {
+  padding: 0 6px;
+  min-width: 0;
+}
+.sw-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.sw-tile {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  min-height: 54px;
+  padding: 6px 2px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--surface-hover);
+  color: var(--ink-2);
+  font: 500 var(--text-xs) / 1 var(--font-ui);
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out), transform var(--dur-1) var(--ease-out);
+}
+.sw-tile > .sw-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--ink);
+}
+.sw-tile:hover {
+  background: var(--surface-active);
+  color: var(--ink);
+}
+.sw-tile:active {
+  transform: scale(0.96);
+}
+.sw-tile[aria-checked='true'] {
+  background: var(--surface-selected);
+  color: var(--ink-on-selected);
+}
+.sw-tile[aria-checked='true'] > .sw-icon {
+  color: var(--ink-on-selected);
+}
+.sw-tile:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ============ controls reference (settings > controls) ============ */
+.sw-keys {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin: 0;
+}
+.sw-keys > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.sw-keys dt {
+  display: inline-flex;
+  gap: 3px;
+  flex: none;
+}
+.sw-keys dd {
+  margin: 0 0 0 4px;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============ small screens ============ */
+/* Phones: a popover becomes a full-width sheet under the top bar, since a 300 px panel anchored to one
+   button would run off the left edge. Tooltips go too: there is no hover, and labels are on the buttons. */
+@media (max-width: 600px) {
+  .sw-popover {
+    position: fixed;
+    top: calc(var(--hud-top) + var(--bar-h) + 10px);
+    left: var(--hud-left);
+    right: var(--hud-right);
+    width: auto;
+    max-height: calc(100dvh - var(--hud-top) - var(--bar-h) - 10px - var(--hud-bottom));
+  }
+  .sw-tip {
+    display: none;
+  }
+}
+/* The narrowest phones: the sky chip keeps only its sun or moon, the popover still has the time. */
+@media (max-width: 440px) {
+  .sw-chip {
+    width: var(--bar-h);
+    padding: 0;
+    justify-content: center;
+  }
+  .sw-chip__time,
+  .sw-chip__weather,
+  .sw-chip__paused {
+    display: none !important;
+  }
+}
+
+/* ============ reduced motion ============ */
+/* tokens.css already zeroes every --dur, so transitions finish at once. What is left is movement that is
+   not a transition: the press nudge, the popover's entry and the tooltip's slide. */
+@media (prefers-reduced-motion: reduce) {
+  .sw-btn:active,
+  .sw-tile:active {
+    transform: none;
+  }
+  .sw-range:active::-webkit-slider-thumb {
+    transform: none;
+  }
+  .sw-popover {
+    animation: none;
+  }
+  .sw-tip {
+    transition-property: opacity;
+  }
+  .sw-seg::before {
+    transition: none;
+  }
+}

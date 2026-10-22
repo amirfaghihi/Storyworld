@@ -1,0 +1,473 @@
+{
+  "id": "earth",
+  "name": "Earth · Around the World in Eighty Days",
+  "kind": "globe",
+  "radius": 200,
+  "seed": 8080,
+  "attribution": "Geography from Natural Earth (public domain). Story notes written from Jules Verne, Around the World in Eighty Days (1873).",
+  "size": [
+    360,
+    180
+  ],
+  "cell": 0.3515625,
+  "seaLevel": 0,
+  "terrain": {
+    "file": "terrain.png",
+    "heightOffset": -60,
+    "heightScale": 220
+  },
+  "palette": {
+    "water": "#4d8fd6",
+    "waterDeep": "#1f4f96",
+    "sand": "#e2c98f",
+    "grass": "#7fb85a",
+    "grassDry": "#b3ae5f",
+    "grassLush": "#4f9a5c",
+    "meadow": "#9ccd5e",
+    "forest": "#3f8a46",
+    "forestDark": "#2f6a44",
+    "rock": "#8d8478",
+    "rockWarm": "#a68b6a",
+    "snow": "#f4f4f8",
+    "ash": "#5b524f",
+    "ashPurple": "#6a5a6e",
+    "marsh": "#6f8f5a",
+    "road": "#c9b48a",
+    "sky": "#7fbdf0",
+    "horizon": "#dbe9f6"
+  },
+  "fog": [
+    320,
+    900
+  ],
+  "cameraDistance": 12,
+  "spawn": [
+    179.872,
+    38.493
+  ],
+  "landmarks": [
+    {
+      "id": "london",
+      "displayName": "London · Reform Club",
+      "type": "city",
+      "position": [
+        179.872,
+        38.493
+      ],
+      "discoverRadius": 24
+    },
+    {
+      "id": "paris",
+      "displayName": "Paris",
+      "type": "city",
+      "position": [
+        182.352,
+        41.143
+      ],
+      "discoverRadius": 20
+    },
+    {
+      "id": "brindisi",
+      "displayName": "Brindisi",
+      "type": "city",
+      "position": [
+        197.94,
+        49.368
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "suez",
+      "displayName": "Suez",
+      "type": "city",
+      "position": [
+        212.55,
+        60.033
+      ],
+      "discoverRadius": 20
+    },
+    {
+      "id": "aden",
+      "displayName": "Aden",
+      "type": "city",
+      "position": [
+        225.03,
+        77.21
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "bombay",
+      "displayName": "Bombay",
+      "type": "city",
+      "position": [
+        252.878,
+        70.924
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "allahabad",
+      "displayName": "Allahabad · the jungle road",
+      "type": "forest",
+      "position": [
+        261.846,
+        64.565
+      ],
+      "discoverRadius": 20
+    },
+    {
+      "id": "calcutta",
+      "displayName": "Calcutta",
+      "type": "city",
+      "position": [
+        268.364,
+        67.427
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "singapore",
+      "displayName": "Singapore",
+      "type": "city",
+      "position": [
+        283.82,
+        88.648
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "hong-kong",
+      "displayName": "Hong Kong",
+      "type": "city",
+      "position": [
+        294.17,
+        67.68
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "shanghai",
+      "displayName": "Shanghai",
+      "type": "city",
+      "position": [
+        301.47,
+        58.77
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "yokohama",
+      "displayName": "Yokohama",
+      "type": "city",
+      "position": [
+        319.638,
+        54.556
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "san-francisco",
+      "displayName": "San Francisco",
+      "type": "city",
+      "position": [
+        57.581,
+        52.225
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "great-salt-lake",
+      "displayName": "Great Salt Lake",
+      "type": "water",
+      "position": [
+        67.5,
+        48.9
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "medicine-bow",
+      "displayName": "Medicine Bow · the broken bridge",
+      "type": "other",
+      "position": [
+        73.8,
+        48.1
+      ],
+      "discoverRadius": 20
+    },
+    {
+      "id": "fort-kearney",
+      "displayName": "Fort Kearney",
+      "type": "fortress",
+      "position": [
+        81,
+        49.36
+      ],
+      "discoverRadius": 20
+    },
+    {
+      "id": "chicago",
+      "displayName": "Chicago",
+      "type": "city",
+      "position": [
+        92.37,
+        48.122
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "new-york",
+      "displayName": "New York",
+      "type": "city",
+      "position": [
+        105.994,
+        49.287
+      ],
+      "discoverRadius": 22
+    },
+    {
+      "id": "queenstown",
+      "displayName": "Queenstown (Cobh)",
+      "type": "village",
+      "position": [
+        171.71,
+        38.15
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "liverpool",
+      "displayName": "Liverpool",
+      "type": "city",
+      "position": [
+        177.008,
+        36.592
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "everest",
+      "displayName": "Mount Everest",
+      "type": "mountain",
+      "position": [
+        266.925,
+        62.012
+      ],
+      "discoverRadius": 24
+    },
+    {
+      "id": "giza",
+      "displayName": "Pyramids of Giza",
+      "type": "ruin",
+      "position": [
+        211.134,
+        60.021
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "rio",
+      "displayName": "Rio de Janeiro",
+      "type": "city",
+      "position": [
+        136.827,
+        112.907
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "cape-town",
+      "displayName": "Cape Town",
+      "type": "city",
+      "position": [
+        198.424,
+        123.925
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "sydney",
+      "displayName": "Sydney",
+      "type": "city",
+      "position": [
+        331.209,
+        123.869
+      ],
+      "discoverRadius": 18
+    },
+    {
+      "id": "south-pole",
+      "displayName": "The South Pole",
+      "type": "other",
+      "position": [
+        180,
+        179.5
+      ],
+      "discoverRadius": 26
+    },
+    {
+      "id": "north-pole",
+      "displayName": "The North Pole",
+      "type": "other",
+      "position": [
+        180,
+        0.5
+      ],
+      "discoverRadius": 26
+    }
+  ],
+  "regions": [
+    {
+      "id": "south-america",
+      "displayName": "South america",
+      "polygon": [
+        [
+          112.03,
+          79.52
+        ],
+        [
+          112.03,
+          79.52
+        ]
+      ],
+      "mood": "lush"
+    },
+    {
+      "id": "australia",
+      "displayName": "Australia",
+      "polygon": [
+        [
+          296.22,
+          124.87
+        ],
+        [
+          296.22,
+          124.87
+        ]
+      ],
+      "mood": "dry"
+    },
+    {
+      "id": "africa",
+      "displayName": "Africa",
+      "polygon": [
+        [
+          190.64,
+          53.1
+        ],
+        [
+          190.64,
+          53.1
+        ]
+      ],
+      "mood": "dry"
+    },
+    {
+      "id": "antarctica",
+      "displayName": "Antarctica",
+      "polygon": [
+        [
+          145.19,
+          167.82
+        ],
+        [
+          145.19,
+          167.82
+        ]
+      ],
+      "mood": "pine"
+    },
+    {
+      "id": "asia",
+      "displayName": "Asia",
+      "polygon": [
+        [
+          359.94,
+          22.37
+        ],
+        [
+          359.94,
+          22.37
+        ]
+      ],
+      "mood": "mixed"
+    },
+    {
+      "id": "europe",
+      "displayName": "Europe",
+      "polygon": [
+        [
+          231.77,
+          43.04
+        ],
+        [
+          231.77,
+          43.04
+        ]
+      ],
+      "mood": "mixed"
+    },
+    {
+      "id": "north-america",
+      "displayName": "North america",
+      "polygon": [
+        [
+          85.28,
+          71.63
+        ],
+        [
+          85.28,
+          71.63
+        ]
+      ],
+      "mood": "mixed"
+    },
+    {
+      "id": "tropics",
+      "displayName": "The Tropics",
+      "polygon": [
+        [
+          0,
+          78
+        ],
+        [
+          360,
+          78
+        ],
+        [
+          360,
+          102
+        ],
+        [
+          0,
+          102
+        ]
+      ],
+      "mood": "lush"
+    },
+    {
+      "id": "boreal-north",
+      "displayName": "The Boreal Forest",
+      "polygon": [
+        [
+          0,
+          24
+        ],
+        [
+          360,
+          24
+        ],
+        [
+          360,
+          42
+        ],
+        [
+          0,
+          42
+        ]
+      ],
+      "mood": "pine"
+    }
+  ]
+}

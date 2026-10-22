@@ -1,0 +1,188 @@
+{
+  "landmarks": {
+    "london": {
+      "region": "europe",
+      "summary": "Phileas Fogg lives at 7 Savile Row and dines at the Reform Club, where a whist-table argument about how small the world has become ends in a wager of twenty thousand pounds: around the world in eighty days, back by 8:45 in the evening on Saturday 21 December 1872.",
+      "storyEvents": [
+        { "book": "Around the World in Eighty Days", "chapter": "Chapters 1-4", "text": "Fogg hires Passepartout in the morning, makes the bet at the club in the afternoon, and leaves from Charing Cross by the 8:45 train the same night with a carpet bag of banknotes." },
+        { "book": "Around the World in Eighty Days", "chapter": "Chapter 37", "text": "Believing he has lost by a day, Fogg learns from Passepartout that travelling east gained him a day: it is Saturday, not Sunday. He reaches the club as the clock strikes and wins." }
+      ],
+      "characters": ["Phileas Fogg", "Jean Passepartout", "Detective Fix"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Around_the_World_in_Eighty_Days"
+    },
+    "paris": {
+      "region": "europe",
+      "summary": "Passepartout's home city, crossed by night train on the way to Turin and Brindisi. He barely sees it.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 4", "text": "The train runs London to Dover, Calais to Paris, then south through the Mont Cenis tunnel to Italy." }],
+      "characters": ["Jean Passepartout"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Around_the_World_in_Eighty_Days"
+    },
+    "brindisi": {
+      "region": "europe",
+      "summary": "The Adriatic port where the travellers board the steamer Mongolia for Suez and Bombay, on Sunday 13 October, exactly on schedule.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 5", "text": "Fogg's notebook records every arrival and departure; Brindisi is the first tick on the itinerary." }],
+      "characters": ["Phileas Fogg"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Around_the_World_in_Eighty_Days"
+    },
+    "suez": {
+      "region": "africa",
+      "summary": "At the entrance of the new canal, Detective Fix of Scotland Yard waits for the bank robber he is sure Fogg must be, and attaches himself to the party.",
+      "storyEvents": [
+        { "book": "Around the World in Eighty Days", "chapter": "Chapters 6-8", "text": "Fix examines the passengers as the Mongolia coals; Passepartout gets Fogg's passport stamped and chats with the detective, who wires London for a warrant." }
+      ],
+      "characters": ["Detective Fix", "Jean Passepartout"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Suez"
+    },
+    "aden": {
+      "region": "asia",
+      "summary": "A coaling stop on the Red Sea route, where Passepartout marvels at the ships and the fortress, and Fogg simply goes on playing whist.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 9", "text": "The Mongolia crosses the Red Sea in rough weather; Fogg never once looks at the shore." }],
+      "characters": ["Phileas Fogg"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Aden"
+    },
+    "bombay": {
+      "region": "asia",
+      "summary": "First landfall in India, two days ahead of schedule. Passepartout wanders into a temple on Malabar Hill with his shoes on and is chased out, an offence Fix will later use against him.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapters 10-11", "text": "The travellers take the Great Indian Peninsula Railway toward Calcutta the same evening, sharing a carriage with Sir Francis Cromarty." }],
+      "characters": ["Jean Passepartout", "Sir Francis Cromarty"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Mumbai"
+    },
+    "allahabad": {
+      "region": "asia",
+      "summary": "The railway turns out to be unfinished, so Fogg buys an elephant named Kiouni and crosses the jungle with a Parsee guide. On the way they rescue Aouda, a young widow about to be burned on her husband's pyre.",
+      "storyEvents": [
+        { "book": "Around the World in Eighty Days", "chapter": "Chapters 11-13", "text": "Passepartout takes the dead rajah's place on the pyre in the dark and rises as if the corpse had come to life, scattering the crowd while the party escapes with Aouda." },
+        { "book": "Around the World in Eighty Days", "chapter": "Chapter 14", "text": "Fogg gives the elephant to the guide as a reward and the party boards the train at Allahabad for Calcutta." }
+      ],
+      "characters": ["Phileas Fogg", "Aouda", "Jean Passepartout", "Sir Francis Cromarty"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Prayagraj"
+    },
+    "calcutta": {
+      "region": "asia",
+      "summary": "Arrested on landing for the temple affair in Bombay, Fogg pays a thousand pounds of bail rather than lose a day, and sails for Hong Kong on the Rangoon with Aouda.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 15", "text": "The judge sentences Passepartout to fifteen days and Fogg to eight; Fogg forfeits the bail and walks straight to the steamer." }],
+      "characters": ["Phileas Fogg", "Aouda", "Detective Fix"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Kolkata"
+    },
+    "singapore": {
+      "region": "asia",
+      "summary": "A few hours ashore among palms and pepper plantations while the Rangoon takes on coal, before the storm-tossed run up to Hong Kong.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 16", "text": "Fogg and Aouda drive through the island while Fix, still without his warrant, follows at a distance." }],
+      "characters": ["Aouda", "Detective Fix"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Singapore"
+    },
+    "hong-kong": {
+      "region": "asia",
+      "summary": "The last British soil before America, and Fix's last chance to arrest Fogg. He gets Passepartout drunk in an opium den so he misses the Carnatic's early departure; Fogg, left behind, charters the pilot boat Tankadère instead.",
+      "storyEvents": [
+        { "book": "Around the World in Eighty Days", "chapter": "Chapters 19-21", "text": "Passepartout wakes aboard the Carnatic alone and sails for Yokohama; Fogg, Aouda and Fix race after him in a twenty-ton schooner through a typhoon." }
+      ],
+      "characters": ["Phileas Fogg", "Jean Passepartout", "Detective Fix", "Aouda"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Hong_Kong"
+    },
+    "shanghai": {
+      "region": "asia",
+      "summary": "The Tankadère cannot reach Yokohama in time, so Fogg aims for Shanghai to catch the American steamer as it leaves. A cannon fired as a signal brings the General Grant about to pick them up.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 21", "text": "With the steamer already under way, pilot John Bunsby fires the schooner's little gun and hoists the flag at half-mast in distress." }],
+      "characters": ["Phileas Fogg", "John Bunsby"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Shanghai"
+    },
+    "yokohama": {
+      "region": "asia",
+      "summary": "Penniless in Japan, Passepartout joins an acrobatic troupe as a human pyramid's base. Fogg, arriving on the General Grant, finds him when the pyramid collapses.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapters 22-23", "text": "Passepartout, in a long-nosed costume of the Long Noses, spots his master in the audience and brings the whole tower of acrobats down." }],
+      "characters": ["Jean Passepartout", "Phileas Fogg"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Yokohama"
+    },
+    "san-francisco": {
+      "region": "north-america",
+      "summary": "Landfall in America on 3 December. Fogg and Fix are caught in a political rally that turns into a brawl; a Colonel Stamp Proctor insults Fogg, who promises to find him again.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapters 24-25", "text": "The party takes the Pacific Railroad east the same evening: seven days from ocean to ocean." }],
+      "characters": ["Phileas Fogg", "Detective Fix", "Colonel Stamp Proctor"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/San_Francisco"
+    },
+    "great-salt-lake": {
+      "region": "north-america",
+      "summary": "The train skirts the lake and stops at Ogden, where Passepartout visits Salt Lake City and hears a long Mormon sermon, and a fleeing husband leaps aboard as the train pulls out.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 27", "text": "A herd of ten thousand buffalo blocks the line for three hours; Fogg does not move from his seat." }],
+      "characters": ["Jean Passepartout"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Great_Salt_Lake"
+    },
+    "medicine-bow": {
+      "region": "north-america",
+      "summary": "A suspension bridge over the gorge is failing. The engineer proposes to jump it at full speed; the passengers agree, and the train clears the bridge as it crashes into the river behind them.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 28", "text": "Passepartout's sensible idea of crossing on foot first is drowned out by American enthusiasm for the leap." }],
+      "characters": ["Jean Passepartout", "Colonel Stamp Proctor"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Medicine_Bow,_Wyoming"
+    },
+    "fort-kearney": {
+      "region": "north-america",
+      "summary": "Sioux warriors attack the train on the plains. Passepartout crawls under the cars to uncouple the engine and stop the train by the fort, and is carried off. Fogg goes back for him with the soldiers, losing a day and, it seems, the wager.",
+      "storyEvents": [
+        { "book": "Around the World in Eighty Days", "chapter": "Chapters 29-30", "text": "Fogg returns with Passepartout at dawn; the train has gone without them, so they hire a sledge with a sail and skim across the frozen prairie to Omaha." }
+      ],
+      "characters": ["Phileas Fogg", "Jean Passepartout", "Aouda", "Detective Fix"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Fort_Kearny"
+    },
+    "chicago": {
+      "region": "north-america",
+      "summary": "A rush across the Mississippi and through Chicago to catch the Pittsburgh, Fort Wayne and Chicago train for New York.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 32", "text": "They reach New York on the evening of 11 December, forty-five minutes after the China has sailed for Liverpool." }],
+      "characters": ["Phileas Fogg"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Chicago"
+    },
+    "new-york": {
+      "region": "north-america",
+      "summary": "With the Liverpool steamer gone, Fogg hires the trading vessel Henrietta for Bordeaux, then buys the ship from her captain mid-ocean and burns her woodwork for fuel to reach Queenstown.",
+      "storyEvents": [
+        { "book": "Around the World in Eighty Days", "chapter": "Chapters 32-33", "text": "Captain Speedy is locked in his cabin while Fogg steers his own ship across the Atlantic; when the coal runs out the masts and deck go into the furnace." }
+      ],
+      "characters": ["Phileas Fogg", "Captain Andrew Speedy"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/New_York_City"
+    },
+    "queenstown": {
+      "region": "europe",
+      "summary": "The Irish harbour where the transatlantic mail lands. Fogg leaves the stripped Henrietta here and takes the mail train to Dublin and the fast boat to Liverpool.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapter 34", "text": "At Liverpool Fix finally arrests Fogg, only to learn the real robber was caught days ago. Fogg knocks him down with two blows." }],
+      "characters": ["Phileas Fogg", "Detective Fix"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Cobh"
+    },
+    "liverpool": {
+      "region": "europe",
+      "summary": "Hours lost in a customs cell make Fogg miss the express. He charters a special train to London and arrives at 8:50, five minutes late, believing himself ruined.",
+      "storyEvents": [{ "book": "Around the World in Eighty Days", "chapter": "Chapters 34-35", "text": "Fogg goes home, tells Aouda he is ruined, and she asks him to marry her anyway." }],
+      "characters": ["Phileas Fogg", "Aouda"],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Liverpool"
+    },
+    "everest": {
+      "region": "asia",
+      "summary": "The highest mountain on Earth, 8,849 m, in the Himalaya between Nepal and Tibet. Not on Fogg's route, but the railway he rides across India runs in its shadow.",
+      "storyEvents": [],
+      "characters": [],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Mount_Everest"
+    },
+    "giza": {
+      "region": "africa",
+      "summary": "The pyramids stand a day's ride from Suez, where Fogg's party paused. Fogg, characteristically, did not go to see them.",
+      "storyEvents": [],
+      "characters": [],
+      "sourceUrl": "https://en.wikipedia.org/wiki/Giza_pyramid_complex"
+    },
+    "rio": { "region": "south-america", "summary": "Rio de Janeiro, between the mountains and the bay. Off the route, here to keep the southern hemisphere company.", "storyEvents": [], "characters": [], "sourceUrl": "https://en.wikipedia.org/wiki/Rio_de_Janeiro" },
+    "cape-town": { "region": "africa", "summary": "The Cape, where sailing ships once rounded Africa before the Suez Canal made Fogg's shortcut possible.", "storyEvents": [], "characters": [], "sourceUrl": "https://en.wikipedia.org/wiki/Cape_Town" },
+    "sydney": { "region": "australia", "summary": "Sydney Harbour. Verne sent other heroes here; Fogg kept to the northern hemisphere.", "storyEvents": [], "characters": [], "sourceUrl": "https://en.wikipedia.org/wiki/Sydney" },
+    "south-pole": { "region": "antarctica", "summary": "The bottom of the world. Every direction from here is north.", "storyEvents": [], "characters": [], "sourceUrl": "https://en.wikipedia.org/wiki/South_Pole" },
+    "north-pole": { "region": "asia", "summary": "The top of the world, on the sea ice. Every direction from here is south.", "storyEvents": [], "characters": [], "sourceUrl": "https://en.wikipedia.org/wiki/North_Pole" }
+  },
+  "regions": {
+    "europe": { "summary": "Where the wager is made and won: London, the Channel, the railway to Brindisi." },
+    "asia": { "summary": "Suez to Yokohama: the long middle of the journey, by steamer, rail, elephant and schooner." },
+    "africa": { "summary": "Touched only at Suez, where the canal saves the voyage round the Cape." },
+    "north-america": { "summary": "Seven days by rail from San Francisco to New York, with buffalo, a broken bridge and a Sioux attack." },
+    "south-america": { "summary": "Off Fogg's route." },
+    "australia": { "summary": "Off Fogg's route." },
+    "antarctica": { "summary": "Ice all the way down." },
+    "tropics": { "summary": "Warm, wet and green around the middle of the world." },
+    "boreal-north": { "summary": "The belt of northern conifer forest." }
+  }
+}

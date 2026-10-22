@@ -1,0 +1,401 @@
+{
+  "landmarks": {
+    "hobbiton": {
+      "region": "shire",
+      "summary": "A quiet hobbit village on the Water, with Bag End dug into the Hill above it. Bilbo and later Frodo lived here, and the whole story of the Ring begins and ends at this doorstep.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "An Unexpected Party", "text": "Gandalf scratches a sign on Bilbo's door and thirteen dwarves arrive for tea, launching the quest to Erebor." },
+        { "book": "The Fellowship of the Ring", "chapter": "A Long-expected Party", "text": "Bilbo vanishes at his 111th birthday party and leaves the Ring, and Bag End, to Frodo." },
+        { "book": "The Return of the King", "chapter": "The Scouring of the Shire", "text": "The returning hobbits find the Shire under Sharkey's rule and rally their neighbours to throw the ruffians out." }
+      ],
+      "characters": ["Bilbo Baggins", "Frodo Baggins", "Samwise Gamgee", "Gandalf"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Hobbiton"
+    },
+    "old-forest": {
+      "region": "shire",
+      "summary": "An ancient, watchful wood on the eastern border of the Shire. Its trees move, its paths shift, and Old Man Willow waits by the Withywindle.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "The Old Forest", "text": "Frodo, Sam, Merry and Pippin cut through the forest to avoid the Road and are trapped by Old Man Willow until Tom Bombadil sings them free." }
+      ],
+      "characters": ["Tom Bombadil", "Old Man Willow"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Old_Forest"
+    },
+    "barrow-downs": {
+      "region": "eriador",
+      "summary": "Rolling grassy hills east of the Old Forest, crowned with the standing stones and burial mounds of forgotten kings. Barrow-wights haunt the tombs.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "Fog on the Barrow-downs", "text": "The hobbits are caught in fog and captured by a Barrow-wight. Tom Bombadil rescues them, and the blades taken from the barrow later matter greatly to Merry." }
+      ],
+      "characters": ["Tom Bombadil", "Merry Brandybuck"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Barrow-downs"
+    },
+    "bree": {
+      "region": "eriador",
+      "summary": "A village of both Men and hobbits at the crossing of the East Road and the Greenway, famous for The Prancing Pony inn.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "At the Sign of the Prancing Pony", "text": "Frodo slips on the Ring in the common room, and a weathered ranger called Strider offers to guide the hobbits." },
+        { "book": "The Return of the King", "chapter": "Homeward Bound", "text": "On the way home the hobbits find Bree changed and wary after a hard year." }
+      ],
+      "characters": ["Aragorn (Strider)", "Barliman Butterbur", "Bill Ferny"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Bree"
+    },
+    "weathertop": {
+      "region": "eriador",
+      "summary": "The southern peak of the Weather Hills, once the site of the watchtower Amon Sûl that held one of the palantíri. Only a ring of broken stones remains.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "A Knife in the Dark", "text": "Strider and the hobbits camp below the summit and are attacked by five Black Riders. Frodo is stabbed by the Witch-king's Morgul-blade." }
+      ],
+      "characters": ["Frodo Baggins", "Aragorn", "The Witch-king"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Weathertop"
+    },
+    "trollshaws": {
+      "region": "eriador",
+      "summary": "Hilly woodland between the Hoarwell and the Loudwater where trolls once roamed. Three of them still stand there, turned to stone.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "Roast Mutton", "text": "Bilbo and the dwarves stumble on three trolls arguing over how to cook them. Gandalf keeps them bickering until sunrise turns them to stone." },
+        { "book": "The Fellowship of the Ring", "chapter": "Flight to the Ford", "text": "The company passes the same stone trolls, and Sam recites a song about them." }
+      ],
+      "characters": ["Bilbo Baggins", "Gandalf", "Tom, Bert and William"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Trollshaws"
+    },
+    "rivendell": {
+      "region": "eriador",
+      "summary": "Imladris, the hidden Elven refuge of Elrond in a deep valley at the feet of the Misty Mountains. A place of healing, counsel and old songs.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "A Short Rest", "text": "Thorin's company rests here and Elrond reads the moon-letters on Thrór's map." },
+        { "book": "The Fellowship of the Ring", "chapter": "The Council of Elrond", "text": "Elrond heals Frodo, the Council decides the Ring must be destroyed, and the Fellowship of nine is chosen." }
+      ],
+      "characters": ["Elrond", "Arwen", "Bilbo Baggins", "Glorfindel"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Rivendell"
+    },
+    "high-pass": {
+      "region": "eriador",
+      "summary": "The main pass over the Misty Mountains east of Rivendell, plagued by goblins who tunnel beneath it.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "Over Hill and Under Hill", "text": "Sheltering from a storm, the company is snatched by goblins through a crack in the cave. In the tunnels below, Bilbo finds a small golden ring." }
+      ],
+      "characters": ["Bilbo Baggins", "Gollum", "The Great Goblin"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/High_Pass"
+    },
+    "annuminas": {
+      "region": "eriador",
+      "summary": "The first capital of Arnor on the shore of Lake Evendim, long abandoned and in ruins by the time of the War of the Ring.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "Appendix A", "text": "Aragorn, as King Elessar, restores the ancient city of his forefathers." }
+      ],
+      "characters": ["Elendil", "Aragorn"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Annúminas"
+    },
+    "carrock": {
+      "region": "rhovanion",
+      "summary": "A great rock standing in the Anduin with steps cut into it by Beorn, whose hall lies nearby.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "Queer Lodgings", "text": "The eagles set the company down on the Carrock, and Gandalf introduces the dwarves to Beorn two at a time." }
+      ],
+      "characters": ["Beorn", "Gandalf"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Carrock"
+    },
+    "moria": {
+      "region": "hollin",
+      "summary": "Khazad-dûm, the greatest dwarf city of the Misty Mountains, now dark and full of orcs. The West-gate opens only to a password written in ithildin.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "A Journey in the Dark", "text": "Gandalf finally speaks 'mellon', the Watcher in the Water attacks, and the Fellowship enters the mines." },
+        { "book": "The Fellowship of the Ring", "chapter": "The Bridge of Khazad-dûm", "text": "The Fellowship finds Balin's tomb, is hunted by orcs and a cave-troll, and Gandalf falls with the Balrog from the bridge." }
+      ],
+      "characters": ["Gandalf", "Balin", "Gimli", "The Balrog (Durin's Bane)"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Moria"
+    },
+    "lorien": {
+      "region": "rhovanion",
+      "summary": "Caras Galadhon, the city of trees at the heart of Lothlórien, where Galadriel and Celeborn dwell among the golden mallorns.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "The Mirror of Galadriel", "text": "The grieving Fellowship finds rest. Frodo and Sam look into Galadriel's Mirror, and Frodo offers her the Ring." },
+        { "book": "The Fellowship of the Ring", "chapter": "Farewell to Lórien", "text": "The company receives elven cloaks, boats and gifts, including the phial that will light Shelob's lair." }
+      ],
+      "characters": ["Galadriel", "Celeborn", "Haldir"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Caras_Galadhon"
+    },
+    "dol-guldur": {
+      "region": "rhovanion",
+      "summary": "The Hill of Sorcery in southern Mirkwood, the fortress of the Necromancer, who was Sauron in hiding.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "The Return Journey", "text": "Gandalf reveals he left the company to help drive the Necromancer out of his stronghold in the south of the forest." }
+      ],
+      "characters": ["Sauron (the Necromancer)", "Gandalf", "Thráin II"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Dol_Guldur"
+    },
+    "thranduils-halls": {
+      "region": "rhovanion",
+      "summary": "The underground halls of the Elvenking beneath the hills of northern Mirkwood, by the Forest River.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "Barrels Out of Bond", "text": "The dwarves are imprisoned by the Wood-elves, and invisible Bilbo smuggles them out in empty wine barrels." }
+      ],
+      "characters": ["Thranduil", "Bilbo Baggins", "Thorin Oakenshield", "Legolas"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Halls_of_Thranduil"
+    },
+    "esgaroth": {
+      "region": "rhovanion",
+      "summary": "Lake-town, a trading town of Men built on piles out in the Long Lake, within sight of the Lonely Mountain.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "A Warm Welcome", "text": "The company floats in by barrel and is feasted by the Master of the town, who hopes for gold from the mountain." },
+        { "book": "The Hobbit", "chapter": "Fire and Water", "text": "Smaug burns Lake-town. Bard the Bowman, told of a gap in the dragon's armour by a thrush, brings him down with the black arrow." }
+      ],
+      "characters": ["Bard", "The Master of Lake-town", "Smaug"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Esgaroth"
+    },
+    "erebor": {
+      "region": "rhovanion",
+      "summary": "The Lonely Mountain, kingdom of Durin's folk under Thrór until the dragon Smaug took it. The goal of Thorin's quest.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "On the Doorstep", "text": "The last light of Durin's Day reveals the keyhole of the secret door." },
+        { "book": "The Hobbit", "chapter": "Inside Information", "text": "Bilbo creeps into the hall and trades riddles with Smaug on his hoard." },
+        { "book": "The Hobbit", "chapter": "The Clouds Burst", "text": "The Battle of Five Armies is fought before the gate. Thorin is mortally wounded and makes peace with Bilbo." }
+      ],
+      "characters": ["Thorin Oakenshield", "Smaug", "Bilbo Baggins", "Dáin Ironfoot"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Erebor"
+    },
+    "iron-hills": {
+      "region": "rhun",
+      "summary": "Dwarf-held hills east of Erebor, home of Dáin Ironfoot, whose army marches to the Lonely Mountain.",
+      "storyEvents": [
+        { "book": "The Hobbit", "chapter": "The Clouds Burst", "text": "Dáin's five hundred dwarves arrive from the Iron Hills just before the goblin army descends." }
+      ],
+      "characters": ["Dáin Ironfoot"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Iron_Hills"
+    },
+    "tharbad": {
+      "region": "enedwaith",
+      "summary": "A ruined river-town where the North-South Road once crossed the Greyflood by a great bridge, now fallen.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "Many Meetings", "text": "Boromir tells of losing his horse at the perilous crossing of Tharbad on his long ride to Rivendell." }
+      ],
+      "characters": ["Boromir"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Tharbad"
+    },
+    "fangorn": {
+      "region": "rohan",
+      "summary": "The last remnant of the great forests of the Elder Days, home of Treebeard and the Ents.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "Treebeard", "text": "Merry and Pippin escape the orcs into the forest and meet Treebeard, the oldest living thing that walks." },
+        { "book": "The Two Towers", "chapter": "The White Rider", "text": "Aragorn, Legolas and Gimli track the hobbits to the forest eaves and meet Gandalf, returned from death." }
+      ],
+      "characters": ["Treebeard", "Merry Brandybuck", "Pippin Took", "Gandalf"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Fangorn_Forest"
+    },
+    "isengard": {
+      "region": "rohan",
+      "summary": "A ring of stone around the tower of Orthanc, at the southern end of the Misty Mountains. Saruman's fortress and forge.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "The Council of Elrond", "text": "Gandalf recounts how Saruman revealed his treachery and imprisoned him on the pinnacle of Orthanc." },
+        { "book": "The Two Towers", "chapter": "Flotsam and Jetsam", "text": "The Ents tear down the walls and drown the pits, and Merry and Pippin greet the arriving riders from the rubble." },
+        { "book": "The Two Towers", "chapter": "The Voice of Saruman", "text": "Gandalf breaks Saruman's staff and Wormtongue throws the palantír from the tower." }
+      ],
+      "characters": ["Saruman", "Gandalf", "Treebeard", "Gríma Wormtongue"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Isengard"
+    },
+    "helms-deep": {
+      "region": "rohan",
+      "summary": "A fortified gorge in the White Mountains guarded by the Hornburg and the Deeping Wall, Rohan's refuge in times of war.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "Helm's Deep", "text": "Théoden's riders hold the wall through a night of storm against Saruman's host. At dawn Gandalf arrives with Erkenbrand, and the Huorns swallow the fleeing orcs." }
+      ],
+      "characters": ["Théoden", "Aragorn", "Éomer", "Gimli", "Legolas"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Helm%27s_Deep"
+    },
+    "edoras": {
+      "region": "rohan",
+      "summary": "The capital of Rohan on a green hill at the feet of the White Mountains, crowned by the golden hall of Meduseld.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "The King of the Golden Hall", "text": "Gandalf frees Théoden from Wormtongue's whispers, and the king takes up his sword again." },
+        { "book": "The Return of the King", "chapter": "The Muster of Rohan", "text": "The Rohirrim gather at Dunharrow and ride for Gondor; Merry rides hidden with Dernhelm." }
+      ],
+      "characters": ["Théoden", "Éowyn", "Éomer", "Gríma Wormtongue"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Edoras"
+    },
+    "amon-hen": {
+      "region": "rohan",
+      "summary": "The Hill of Sight above the falls of Rauros, with an ancient seat of seeing on its summit. Here the Fellowship breaks.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "The Breaking of the Fellowship", "text": "Boromir tries to take the Ring. Frodo puts it on, sees the Eye from the Seat of Seeing, and resolves to go on alone with Sam." },
+        { "book": "The Two Towers", "chapter": "The Departure of Boromir", "text": "Boromir dies defending Merry and Pippin, and his companions send him over the falls in an elven boat." }
+      ],
+      "characters": ["Frodo Baggins", "Boromir", "Samwise Gamgee"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Amon_Hen"
+    },
+    "dead-marshes": {
+      "region": "rohan",
+      "summary": "A drowned battlefield north-west of Mordor, where the faces of the dead from the Last Alliance glimmer beneath the pools.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "The Passage of the Marshes", "text": "Gollum leads Frodo and Sam through the marsh by night, warning them not to follow the candle-lights of the dead." }
+      ],
+      "characters": ["Frodo Baggins", "Samwise Gamgee", "Gollum"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Dead_Marshes"
+    },
+    "morannon": {
+      "region": "mordor",
+      "summary": "The Black Gate, a rampart of iron and stone closing the pass of Cirith Gorgor, the only northern way into Mordor.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "The Black Gate is Closed", "text": "Frodo, Sam and Gollum see the gate is impassable, and Gollum offers another way: the stairs of Cirith Ungol." },
+        { "book": "The Return of the King", "chapter": "The Black Gate Opens", "text": "The Captains of the West challenge Sauron at the gate to draw his eye from the Ring-bearer." }
+      ],
+      "characters": ["Aragorn", "Gandalf", "The Mouth of Sauron", "Pippin Took"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Morannon"
+    },
+    "barad-dur": {
+      "region": "mordor",
+      "summary": "The Dark Tower, Sauron's fortress, raised with the power of the Ring and unbreakable while the Ring survives.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "Mount Doom", "text": "As the Ring goes into the fire, the towers of Barad-dûr crumble and fall." }
+      ],
+      "characters": ["Sauron"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Barad-dûr"
+    },
+    "mount-doom": {
+      "region": "mordor",
+      "summary": "Orodruin, the volcano where Sauron forged the One Ring, and the only fire hot enough to unmake it.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "Mount Doom", "text": "Sam carries Frodo up the mountain. At the Cracks of Doom Gollum bites off the Ring, and falls with it into the fire." }
+      ],
+      "characters": ["Frodo Baggins", "Samwise Gamgee", "Gollum"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Mount_Doom"
+    },
+    "cirith-ungol": {
+      "region": "mordor",
+      "summary": "The Pass of the Spider, a high cleft in the Ephel Dúath guarded by an orc tower and by Shelob's lair.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "Shelob's Lair", "text": "Gollum leads the hobbits into Shelob's tunnels. Sam drives the spider off, but Frodo lies stung and is taken by orcs." },
+        { "book": "The Return of the King", "chapter": "The Tower of Cirith Ungol", "text": "Sam braves the tower alone and rescues Frodo after the orcs fall to fighting among themselves." }
+      ],
+      "characters": ["Samwise Gamgee", "Frodo Baggins", "Shelob", "Gollum"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Cirith_Ungol"
+    },
+    "minas-morgul": {
+      "region": "ithilien",
+      "summary": "Once Minas Ithil, Tower of the Moon; now the dead city of the Ringwraiths, glowing with a sickly light.",
+      "storyEvents": [
+        { "book": "The Two Towers", "chapter": "The Stairs of Cirith Ungol", "text": "The hobbits watch the Witch-king lead his army out of the city gate to war, while Frodo fights the pull of the Ring." }
+      ],
+      "characters": ["The Witch-king", "Frodo Baggins", "Samwise Gamgee"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Minas_Morgul"
+    },
+    "osgiliath": {
+      "region": "gondor",
+      "summary": "The old capital of Gondor, built across the Anduin. Ruined by war and plague, its bridge is a battleground.",
+      "storyEvents": [
+        { "book": "The Fellowship of the Ring", "chapter": "The Council of Elrond", "text": "Boromir tells of the dream that came to him and Faramir after the fight for the bridge of Osgiliath." },
+        { "book": "The Return of the King", "chapter": "The Siege of Gondor", "text": "Faramir holds the ruins as long as he can before the enemy crosses the river in force." }
+      ],
+      "characters": ["Boromir", "Faramir"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Osgiliath"
+    },
+    "minas-tirith": {
+      "region": "gondor",
+      "summary": "The White City of seven walls built against Mount Mindolluin, capital of Gondor and seat of the Stewards.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "Minas Tirith", "text": "Gandalf and Pippin arrive ahead of the war, and Pippin swears service to Denethor." },
+        { "book": "The Return of the King", "chapter": "The Battle of the Pelennor Fields", "text": "The Rohirrim break the siege at dawn. Éowyn and Merry slay the Witch-king, and Aragorn arrives by ship." },
+        { "book": "The Return of the King", "chapter": "The Steward and the King", "text": "Aragorn is crowned King Elessar before the gates, and Faramir and Éowyn are betrothed." }
+      ],
+      "characters": ["Denethor", "Faramir", "Pippin Took", "Gandalf", "Éowyn", "Aragorn"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Minas_Tirith"
+    },
+    "pelargir": {
+      "region": "gondor",
+      "summary": "Gondor's great river-port on the lower Anduin, where the black ships of Umbar are captured.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "The Last Debate", "text": "Aragorn and the Dead of Dunharrow take the corsair fleet at Pelargir and sail it up the Anduin to Minas Tirith." }
+      ],
+      "characters": ["Aragorn", "Legolas", "Gimli"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Pelargir"
+    },
+    "dol-amroth": {
+      "region": "gondor",
+      "summary": "A castle-city on the coast of Belfalas, home of Prince Imrahil and his swan-knights.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "Minas Tirith", "text": "Imrahil rides in with his knights to help defend the White City." }
+      ],
+      "characters": ["Prince Imrahil"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Dol_Amroth"
+    },
+    "umbar": {
+      "region": "harad",
+      "summary": "A great natural harbour far to the south, stronghold of the Corsairs who raid Gondor's coasts.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "The Last Debate", "text": "The corsair fleet from Umbar sails to attack Gondor, only to be seized by Aragorn at Pelargir." }
+      ],
+      "characters": ["The Corsairs of Umbar"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Umbar"
+    },
+    "grey-havens": {
+      "region": "lindon",
+      "summary": "Mithlond, the elven harbour on the Gulf of Lune, from which the Elves sail west over the Sea.",
+      "storyEvents": [
+        { "book": "The Return of the King", "chapter": "The Grey Havens", "text": "Frodo, Bilbo, Gandalf, Galadriel and Elrond board the white ship and sail into the West. Sam rides home." }
+      ],
+      "characters": ["Círdan", "Frodo Baggins", "Gandalf", "Samwise Gamgee"],
+      "sourceUrl": "https://tolkiengateway.net/wiki/Grey_Havens"
+    }
+  },
+  "regions": {
+    "shire": {
+      "summary": "A green, well-ordered land of farms and hobbit-holes, sheltered from the wide world for centuries.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/The_Shire"
+    },
+    "eriador": {
+      "summary": "The wide lands between the Blue Mountains and the Misty Mountains, once the kingdom of Arnor, now mostly empty.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Eriador"
+    },
+    "lindon": {
+      "summary": "The last Elven realm west of the mountains, ruled from the Grey Havens by Círdan the Shipwright.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Lindon"
+    },
+    "angmar": {
+      "summary": "The cold northern realm of the Witch-king, which destroyed Arnor long ago and was itself destroyed in turn.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Angmar"
+    },
+    "hollin": {
+      "summary": "Eregion, the former land of the Elven-smiths who forged the Rings of Power. Holly trees still mark its borders.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Eregion"
+    },
+    "dunland": {
+      "summary": "Hill country west of the Misty Mountains, home of the Dunlendings, who fought for Saruman at Helm's Deep.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Dunland"
+    },
+    "enedwaith": {
+      "summary": "A sparsely peopled wilderness between the Greyflood and the Isen.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Enedwaith"
+    },
+    "rohan": {
+      "summary": "The Riddermark, grassy plains of the horse-lords, allies of Gondor.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Rohan"
+    },
+    "gondor": {
+      "summary": "The southern kingdom of the Dúnedain, long without a king, holding the line against Mordor.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Gondor"
+    },
+    "ithilien": {
+      "summary": "The garden of Gondor between the Anduin and the Mountains of Shadow, now a wild borderland patrolled by Faramir's rangers.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Ithilien"
+    },
+    "mordor": {
+      "summary": "The Black Land, walled by mountains on three sides, where Sauron gathers his armies under the shadow of Mount Doom.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Mordor"
+    },
+    "rhovanion": {
+      "summary": "Wilderland: the vast country east of the Misty Mountains, holding Mirkwood, the Anduin vales and the Lonely Mountain.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Rhovanion"
+    },
+    "rhun": {
+      "summary": "The little-known East, from which the Easterlings come to serve Sauron.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Rhûn"
+    },
+    "harad": {
+      "summary": "The sun-lands of the South, home of the Haradrim and their war-oliphaunts.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Harad"
+    },
+    "forodwaith": {
+      "summary": "The frozen Northern Waste beyond Angmar, where few travel.",
+      "sourceUrl": "https://tolkiengateway.net/wiki/Forodwaith"
+    }
+  }
+}

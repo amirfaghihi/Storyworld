@@ -1,0 +1,270 @@
+/*
+ * Storyworld design tokens: the single source of truth for the HUD, panels, dialogs, map and minimap.
+ * main.tsx imports this first, then kit.css, then styles.css, so component CSS always sees the tokens.
+ *
+ * Two scene tones, switched on <html data-scene>:
+ *   day   = parchment glass (dark ink on warm translucent paper), the default
+ *   night = ink glass (cream ink on dark translucent umber), from about 19:58 to 07:05
+ * An element with class sw-tone-day stays in the day tone whatever the scene. The map dialog uses it,
+ * because a map always reads as paper.
+ * <html data-quality> (low|medium|high|ultra) turns the backdrop blur off on the low tier.
+ *
+ * Everything that does not change with the tone (type, space, sizes, motion, layers) lives on :root only.
+ * The tone block is declared on `:root, .sw-tone-day` instead. Custom properties that reference other
+ * properties (--surface, --focus-ring) are resolved where they are declared, so a day island has to
+ * re-declare them rather than inherit the night values computed on <html>.
+ */
+:root {
+  /* ---- type: system stacks only, no web fonts, so the UI renders the same offline ---- */
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Iowan ships on Apple systems, Palatino Linotype and Book Antiqua on Windows; Georgia, then any serif, elsewhere */
+  --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  --text-2xs: 10.5px;
+  --text-xs: 11.5px;
+  --text-sm: 13px;
+  --text-md: 14.5px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 44px;
+  --leading-tight: 1.15;
+  --leading-body: 1.5;
+  --tracking-caps: 0.14em;
+
+  /* ---- space: 4 px grid ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* ---- radius (inner radius = outer - padding, so nested shapes stay concentric) ---- */
+  --r-xs: 5px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+
+  /* ---- control sizes (fine pointer; coarse pointers override below) ---- */
+  --ctl-h: 36px; /* toolbar and icon buttons */
+  --ctl-h-sm: 32px; /* buttons inside panels, segmented options */
+  --ctl-h-lg: 48px; /* the primary call to action (portal prompt, "Travel here") */
+  --bar-pad: 4px; /* padding inside the toolbar pill */
+  --bar-h: calc(var(--ctl-h) + 2 * var(--bar-pad) + 2px); /* toolbar and chip outer height, 1 px borders included */
+  --icon: 20px;
+  --icon-sm: 16px;
+
+  /* ---- HUD frame (safe-area aware: index.html sets viewport-fit=cover) ---- */
+  --hud-top: max(14px, env(safe-area-inset-top));
+  --hud-right: max(16px, env(safe-area-inset-right));
+  --hud-bottom: max(14px, env(safe-area-inset-bottom));
+  --hud-left: max(16px, env(safe-area-inset-left));
+  --hud-gap: 8px;
+  --hud-below-bar: calc(var(--hud-top) + var(--bar-h) + 12px); /* first free y under the top bar */
+  --hud-plate-h: 96px; /* measured at runtime by Hud (ResizeObserver) */
+  --minimap-size: 196px; /* outer width of the minimap card */
+
+  /* ---- palette primitives: components use the semantic tokens below, never these ---- */
+  --parchment-50: #fbf7ee;
+  --parchment-100: #f7f0e1;
+  --parchment-200: #efe4cd;
+  --parchment-300: #e2d3b4;
+  --umber-900: #2a2118;
+  --umber-700: #5b4c3b;
+  --umber-600: #7a6a55;
+  --umber-400: #a2957f;
+  --night-900: #15120e;
+  --night-800: #1d1914;
+  --night-700: #29231c;
+  --cream-100: #f4ecdc;
+  --cream-300: #c9bba3;
+  --ember-700: #933823;
+  --ember-600: #a8432a; /* 5.68:1 under #fff8ec; the lighter #b5462f would not hold 5:1 */
+  --ember-300: #f0a27f;
+  --moss-600: #2f6f3e;
+  --moss-300: #8fcf9b;
+  --sky-600: #2f6fb3;
+  --sky-300: #8cc0ff;
+  --gold-400: #d9a441;
+
+  /* ---- glass: opacity and blur are quality and accessibility settings, not tone ---- */
+  --glass-a: 0.84;
+  --blur: 14px;
+  --glass-filter: blur(var(--blur)) saturate(1.25);
+
+  /* ---- colours that do not change with the tone ---- */
+  --accent: var(--ember-600); /* fills: primary button, slider fill, selected pin, the player */
+  --accent-hover: var(--ember-700);
+  --accent-ink: #fff8ec; /* text and icons on --accent */
+  --scrim: rgb(20 16 12 / 0.6);
+  --tip-bg: rgb(28 23 18 / 0.94);
+  --tip-ink: var(--parchment-100);
+  --floating-ink: #fffaf0; /* text drawn straight on the scene (toast) */
+  --floating-shadow: 0 1px 2px rgb(0 0 0 / 0.6), 0 0 18px rgb(0 0 0 / 0.35);
+
+  /* ---- motion ---- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --dur-1: 90ms; /* press */
+  --dur-2: 160ms; /* hover, colour */
+  --dur-3: 240ms; /* popover, card, dialog in */
+  --dur-4: 420ms; /* day/night cross-fade */
+  --tip-delay: 450ms;
+
+  /* ---- layers ---- */
+  --z-card: 9; /* lore card */
+  --z-hud: 10; /* top bar, hint, minimap; popovers and tooltips live inside it */
+  --z-editor: 11;
+  --z-toast: 12;
+  --z-touch: 13; /* joystick, run button */
+  --z-dialog: 40; /* map, codex, worlds */
+  --z-tooltip: 60; /* standalone tooltips outside the HUD stacking context */
+
+  /* ---- cartography: the map is always paper, so none of these follow the scene tone ---- */
+  --map-paper: #f3ead6; /* flat fills inside the map dialog */
+  --map-void: #e2d6bd; /* outside the world's bounds (hatched, never water) */
+  --map-ink: #2b2620;
+  --map-region-ink: #6b5a44; /* 5.06:1 on map land */
+  --map-water-ink: #2f5f8f;
+  --map-halo: rgba(246, 239, 224, 0.92); /* text halo for labels drawn over the terrain */
+  --map-marker: 22px;
+  --map-marker-touch: 28px;
+  --player: var(--accent);
+}
+
+/* ---- semantic colours, DAY (parchment glass): the default, and any .sw-tone-day island ---- */
+:root,
+.sw-tone-day {
+  color-scheme: light;
+  --surface-rgb: 247 240 225;
+  --surface: rgb(var(--surface-rgb) / var(--glass-a)); /* HUD bars, chip, location plate, hint */
+  --surface-strong: rgb(250 246 236 / 0.95); /* popovers, lore card */
+  --surface-solid: var(--parchment-100); /* dialogs, which sit on a scrim */
+  --surface-sunken: rgb(226 211 180 / 0.5); /* inset blocks, segmented track */
+  --surface-hover: rgb(42 33 24 / 0.07);
+  --surface-active: rgb(42 33 24 / 0.13);
+  --surface-selected: var(--umber-900); /* toggled-on tiles */
+  --seg-thumb: #fffdf8;
+  --ink: var(--umber-900);
+  --ink-2: var(--umber-700);
+  --ink-3: var(--umber-600); /* captions and disabled text, 12 px and up only */
+  --ink-on-selected: var(--parchment-50);
+  --accent-text: #9c3b24; /* accent used as text on a surface */
+  --accent-soft: rgb(168 67 42 / 0.12);
+  --accent-soft-hover: rgb(168 67 42 / 0.2);
+  --success: var(--moss-600);
+  --danger: #a3301f;
+  --border: rgb(42 33 24 / 0.14);
+  --border-strong: rgb(42 33 24 / 0.26);
+  --divider: rgb(42 33 24 / 0.1);
+  --track: rgb(42 33 24 / 0.14);
+  --highlight: inset 0 1px 0 rgb(255 255 255 / 0.55); /* top sheen on glass */
+  --shadow-1: 0 1px 2px rgb(20 14 8 / 0.16), 0 3px 10px rgb(20 14 8 / 0.14);
+  --shadow-2: 0 2px 6px rgb(20 14 8 / 0.14), 0 14px 36px rgb(20 14 8 / 0.24);
+  --shadow-3: 0 10px 30px rgb(20 14 8 / 0.3), 0 30px 90px rgb(20 14 8 / 0.38);
+  --tip-border: transparent;
+  --kbd-bg: rgb(42 33 24 / 0.07);
+  --kbd-border: rgb(42 33 24 / 0.2);
+  --kbd-ink: var(--ink-2);
+  --focus: var(--sky-600);
+  --focus-gap: var(--parchment-50);
+  --focus-ring: 0 0 0 2px var(--focus-gap), 0 0 0 4px var(--focus);
+}
+
+/* ---- semantic colours, NIGHT (ink glass) ---- */
+:root[data-scene='night'] {
+  color-scheme: dark;
+  --surface-rgb: 29 25 20;
+  --surface-strong: rgb(33 28 22 / 0.95);
+  --surface-solid: var(--night-800);
+  --surface-sunken: rgb(255 240 210 / 0.07);
+  --surface-hover: rgb(255 240 210 / 0.08);
+  --surface-active: rgb(255 240 210 / 0.15);
+  --surface-selected: var(--cream-100);
+  --seg-thumb: rgb(255 240 210 / 0.16);
+  --ink: var(--cream-100);
+  --ink-2: var(--cream-300);
+  --ink-3: var(--umber-400);
+  --ink-on-selected: var(--night-800);
+  --accent-text: var(--ember-300);
+  --accent-soft: rgb(240 162 127 / 0.16);
+  --accent-soft-hover: rgb(240 162 127 / 0.24);
+  --success: var(--moss-300);
+  --danger: #f08a7a;
+  --border: rgb(255 240 210 / 0.13);
+  --border-strong: rgb(255 240 210 / 0.24);
+  --divider: rgb(255 240 210 / 0.1);
+  --track: rgb(255 240 210 / 0.16);
+  --highlight: inset 0 1px 0 rgb(255 240 210 / 0.08);
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 3px 10px rgb(0 0 0 / 0.3);
+  --shadow-2: 0 2px 6px rgb(0 0 0 / 0.3), 0 14px 36px rgb(0 0 0 / 0.45);
+  --shadow-3: 0 10px 30px rgb(0 0 0 / 0.45), 0 30px 90px rgb(0 0 0 / 0.55);
+  --tip-border: rgb(255 240 210 / 0.14);
+  --kbd-bg: rgb(255 240 210 / 0.08);
+  --kbd-border: rgb(255 240 210 / 0.2);
+  --focus: var(--sky-300);
+  --focus-gap: var(--night-800);
+}
+
+/* Low tier and "reduce transparency": no backdrop blur (it re-blurs the live WebGL canvas every frame). */
+:root[data-quality='low'] {
+  --blur: 0px;
+  --glass-a: 0.96;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --blur: 0px;
+    --glass-a: 0.97;
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --blur: 0px;
+    --glass-a: 1;
+  }
+  :root,
+  .sw-tone-day {
+    --border: rgb(42 33 24 / 0.5);
+    --ink-2: var(--umber-900);
+  }
+  :root[data-scene='night'] {
+    --border: rgb(255 240 210 / 0.5);
+    --ink-2: var(--cream-100);
+  }
+}
+/* Touch: 44 px targets everywhere. */
+@media (pointer: coarse) {
+  :root {
+    --ctl-h: 44px;
+    --ctl-h-sm: 44px;
+    --bar-pad: 3px;
+    --icon: 22px;
+  }
+}
+/* The minimap shrinks on touch devices and on narrow windows alike: both are short of screen. */
+@media (pointer: coarse), (max-width: 760px) {
+  :root {
+    --minimap-size: 132px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+    --dur-4: 0ms;
+    --tip-delay: 0ms;
+  }
+}
+
+/* index.html used to set body { font-family: system-ui }, which is why styles.css's serif :root font never
+   showed. Two element selectors, so this wins over a plain `body` rule whatever the stylesheet order. */
+html body {
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,139 @@
+/*
+ * The minimap card (Minimap.tsx). The HUD positions it (hud.css .hud-minimap) and measures its height;
+ * everything inside belongs here. Only tokens.css names are used.
+ *
+ * The card is HUD glass and follows the scene tone like the rest of the HUD; the map inside it is
+ * always paper (it is drawn by the map renderer, not styled). Outer width is --minimap-size, borders
+ * included: 196 px gives a 184 px map, 132 px (touch, or a narrow window) a 124 px one.
+ */
+.minimap-card {
+  box-sizing: border-box;
+  width: var(--minimap-size);
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  background: var(--surface);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--highlight), var(--shadow-2);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  /* the HUD wrapper sets line-height 0 so it hugs the card; the card's own text needs it back */
+  line-height: var(--leading-tight);
+  pointer-events: auto;
+  transition:
+    background-color var(--dur-4) var(--ease-in-out),
+    color var(--dur-4) var(--ease-in-out);
+}
+
+/* ---- header: where you are, and the north-up / heading-up toggle ---- */
+.minimap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-1);
+  min-height: var(--ctl-h-sm);
+  padding-left: 7px;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.minimap-head__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.minimap-head .sw-btn {
+  flex: none;
+}
+
+/* ---- the map: a square canvas the renderer draws into; the whole square is the "open map" button ---- */
+.minimap-card > .sw-tip-host {
+  display: flex;
+}
+.minimap-view {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  /* concentric with the card: outer radius minus the padding and border */
+  border-radius: calc(var(--r-lg) - 6px);
+  overflow: hidden;
+  cursor: pointer;
+  /* a drag or pinch over the minimap must not pan or zoom the page */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  transition: box-shadow var(--dur-2) var(--ease-out);
+}
+.minimap-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* a hairline over the map's edge, so the paper never bleeds into a pale sky */
+.minimap-view::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .minimap-view:hover::after {
+    box-shadow:
+      inset 0 0 0 1px var(--border-strong),
+      inset 0 0 0 3px var(--accent-soft-hover);
+  }
+}
+.minimap-view:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* ---- footer: the nearest landmark, its distance and direction ---- */
+.minimap-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 18px;
+  padding: 0 var(--sp-1) 1px 6px;
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.minimap-foot__icon {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+.minimap-foot__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.minimap-foot[data-empty] {
+  color: var(--ink-3);
+}
+
+/* Touch, or a narrow window: the card shrinks to just the map (tokens.css shrinks --minimap-size on the
+   same query). Minimap.tsx skips the footer's distance work under this query too. */
+@media (pointer: coarse), (max-width: 760px) {
+  .minimap-card {
+    padding: 3px;
+    border-radius: var(--r-md);
+  }
+  .minimap-view {
+    border-radius: calc(var(--r-md) - 4px);
+  }
+  .minimap-head,
+  .minimap-foot {
+    display: none;
+  }
+}
