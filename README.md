@@ -2,6 +2,17 @@
 
 Roam small, cartoonish 3D versions of the worlds inside stories. The first world is Middle-earth.
 
+![The traveller in Hobbiton, with Bag End on the Hill behind](docs/images/hobbiton.jpg)
+
+| | |
+|---|---|
+| ![Bree at dusk, lamps and windows lit along the road under the Hill](docs/images/bree-night.jpg) | ![The overview map of Middle-earth with every landmark](docs/images/map.jpg) |
+| *Bree at dusk: the day/night clock lights lamps and windows* | *The overview map (**M**): click any place to travel there* |
+| ![Ash falling over Mordor, Mount Doom glowing ahead](docs/images/mount-doom.jpg) | ![Snow over the pine woods below Erebor](docs/images/erebor-snow.jpg) |
+| *Mordor under ash: weather is rolled per region* | *Snow lying on the woods below Erebor* |
+| ![Earth as a globe, at the Reform Club in London with its lore card open](docs/images/earth.jpg) | |
+| *A second world: Earth as a sphere, following* Around the World in Eighty Days | |
+
 - Walk a miniature Middle-earth (1.25 km across) as a third-person traveller: sea, lakes and rivers, meadows and dry grassland, mixed forests with autumn groves, flowers, rolling hills, snow-capped mountains and the ash plain of Mordor.
 - Press **M** for a 2D overview map drawn from the same terrain data. Click any place to travel there.
 - Walk up to a waymarker to read what happened there in the story. Press **C** for the codex of discovered places.
@@ -9,6 +20,21 @@ Roam small, cartoonish 3D versions of the worlds inside stories. The first world
 - The world runs on a **clock**: the sun rises and sets, the sky and fog go warm at dawn, deep blue at night with stars and a moon, and lamps, windows and the traveller's staff light up after dark. Open the clock in the top-right to drag the time, jump to dawn/noon/dusk/night, freeze it or change the day length.
 - Press **Tab** for the editor: sculpt the terrain (raise, lower, smooth, flatten), paint biomes, move or add landmarks, then save straight into `public/worlds/<id>/` in dev (or download `terrain.png` + `world.json`). An edit survives a reload exactly.
 - Walk through the gate at Hobbiton and press **Enter** to step into the village at walking scale: Bag End and Bagshot Row on the Hill, the Party Field, the bridge over the Water, Sandyman's mill, Bywater Pool and the Green Dragon, each with its own story notes. The gate at the south edge (or the *Leave* button) takes you back.
+
+## Requirements
+
+| | Minimum | Notes |
+|---|---|---|
+| **Node.js** | 20.19 or 22.12+ | Required by Vite 7. Developed on Node 26 with npm 11. |
+| **npm** | 10+ | Ships with the Node versions above. |
+| **OS** | macOS, Linux or Windows | Developed on macOS (Apple silicon). |
+| **Browser** | Any browser with **WebGL 2**: Chrome/Edge, Firefox, or Safari 16+ | three.js r184 has no WebGL 1 fallback. Hardware acceleration must be on. |
+| **GPU** | Integrated graphics are enough on *Low*/*Medium* | Pick a tier in Settings (gear icon). On an Apple M4 laptop at 1512×860 @2x, *High* runs at ~130 fps uncapped. *Ultra* holds 60 fps up to ~3 million rendered pixels. A render-scale controller drops resolution automatically when the frame rate sags. |
+| **Disk** | ~350 MB | Mostly `node_modules` (~325 MB). The production build is ~4 MB including world data. |
+
+The world-building scripts (`build:world`, `build:earth`) use the `canvas` package. It ships prebuilt binaries for common platforms. Where none exists, `npm install` compiles it, which needs Cairo and Pango (`brew install pkg-config cairo pango libpng jpeg giflib librsvg` on macOS; see [node-canvas](https://github.com/Automattic/node-canvas#compiling)). You only need it to regenerate world data. The generated worlds are committed, so the app itself runs without rebuilding them.
+
+Sound is optional. The music isn't in the repository. Drop your own tracks into `public/audio/` (see its README) and the game picks them up. Without them it plays in silence.
 
 ## Run
 
