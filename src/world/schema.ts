@@ -22,6 +22,8 @@ export const DressingSchema = z.object({
   weather: z.string().optional(),
   /** the air of this place: light, haze, motes (see AURAS in src/render/auras.ts) */
   aura: z.string().optional(),
+  /** where the overworld Enter arch stands, from the landmark; default [6, 8] (see Portals.tsx) */
+  portal: z.tuple([z.number(), z.number()]).optional(),
   props: z.array(PropSchema).default([]),
 })
 export type Dressing = z.infer<typeof DressingSchema>
@@ -92,6 +94,7 @@ export const WorldSchema = z.object({
   speedScale: z.number().optional(),
   /** initial camera yaw when spawning at the spawn point */
   spawnYaw: z.number().optional(),
+  spawnPitch: z.number().optional(),
   /** the part of the map worth showing [x0, z0, x1, z1]; places leave out their wooded rim */
   mapBounds: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
   place: PlaceInfoSchema.optional(),

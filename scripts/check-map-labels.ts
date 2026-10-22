@@ -1,9 +1,10 @@
 // Regression check for the map's lettering (src/map2d/labels.ts) and place search (src/map2d/search.ts).
-// Runs the dialog's own layout code for Middle-earth, Bree and Hobbiton at four window sizes and three
+// Runs the dialog's own layout code for Middle-earth, Bree, Hobbiton and Edoras at four window sizes and three
 // zooms, measuring text with node-canvas in the font the map uses, and asserts that:
 //   - no two names overlap, no name sits on a marker, a '+n' chip, a control or (in places) a building
 //     or smial footprint, nothing runs off the map, and no '+n' chip sits under another marker;
-//   - Middle-earth letters at least 30 places at fit in a 1400×900 window, and Bree and Hobbiton every spot;
+//   - Middle-earth letters at least 30 places at fit in a 1400×900 window, and each place every spot
+//     (Edoras, whose town is too dense for that at fit, each spot by 2× with the view on it);
 //   - the pairs that used to collide never do (Rhovanion/Mirkwood, Hobbiton/The Shire, Minas Tirith/
 //     Osgiliath/Minas Morgul, the Crossing of the Ways/the West Gate, the Prancing Pony/the Inn-yard);
 //   - names keep their slots between zoom steps (no more than 10% move per 10% of zoom), and once
@@ -23,6 +24,7 @@ import { WorldSchema, LoreSchema, type World, type Lore } from '../src/world/sch
 import { buildPlace } from '../src/places/buildPlace.ts'
 import { def as bree } from '../src/places/defs/bree.ts'
 import { def as hobbiton } from '../src/places/defs/hobbiton.ts'
+import { def as edoras } from '../src/places/defs/edoras.ts'
 import { markerModels, EXIT_ID, type MarkerModel } from '../src/map2d/markers.ts'
 import { layoutMapFrame, regionAnchors, discHitsBox, countChipBox, MAJOR_PRIORITY, type LabelLayout, type MapFrame, type RegionAnchors } from '../src/map2d/labels.ts'
 import { overlaps, type AABB } from '../src/map2d/geom/spatialHash.ts'
@@ -228,7 +230,7 @@ function verify(tag: string, frame: MapFrame, drawn: Drawn[], sc: Screen, footpr
 }
 
 // ---- run
-const worlds = [overworld('middle-earth'), place('bree', bree), place('hobbiton', hobbiton)]
+const worlds = [overworld('middle-earth'), place('bree', bree), place('hobbiton', hobbiton), place('edoras', edoras)]
 const SCREENS: [number, number][] = [
   [1400, 900],
   [1920, 1080],
@@ -236,6 +238,14 @@ const SCREENS: [number, number][] = [
   [390, 844],
 ]
 const ZOOMS = [1, 2, 4]
+/**
+ * Places letter every spot at fit in a 1400×900 window, except one whose town is too dense for that:
+ * it letters each spot by this zoom, with the view centred on the spot. Edoras's map is 470 × 540 m
+ * (1.41 px/m at fit) and the four spots on the hall's platform stand 12-20 m apart, closer than one
+ * 22 px badge (15.6 m), so at fit they merge into one marker by design; the paved way and the
+ * spring stand among the terrace rows, whose footprints leave their names no room before 1.5-2×.
+ */
+const LETTERED_BY: Record<string, number> = { edoras: 2 }
 const PAIRS: Record<string, [string, string][]> = {
   'middle-earth': [
     ['rhovanion', 'mirkwood'],
@@ -249,6 +259,7 @@ const PAIRS: Record<string, [string, string][]> = {
     ['prancing-pony', 'inn-yard'],
   ],
   hobbiton: [],
+  edoras: [],
 }
 
 for (const w of worlds) {
@@ -288,8 +299,12 @@ for (const w of worlds) {
         if (w.name === 'middle-earth') {
           if (placed < 30) fail(`${tag}: only ${placed} place names at fit (want ≥ 30 of ${total})`)
         } else {
-          const missing = models.filter((m) => !frame.layout.places.get(m.id))
-          if (missing.length) fail(`${tag}: unlabelled at fit: ${missing.map((m) => m.name).join(', ')}`)
+          const by = LETTERED_BY[w.name] ?? 1
+          // a name the fit leaves off must come by `by`× with the view on its own marker
+          const around = (m: MarkerModel) =>
+            !!layoutMapFrame({ models, anchors, regionNames: names, view: { cx: m.x, cz: m.z, s: fit * by, vw: sc.vw, vh: sc.vh }, touch: sc.touch, reserved: sc.reserved, obstacles: w.plan?.reserved, measure, player: { x: w.meta.spawn[0], z: w.meta.spawn[1] } }).layout.places.get(m.id)
+          const missing = models.filter((m) => !frame.layout.places.get(m.id) && (by === 1 || !around(m)))
+          if (missing.length) fail(`${tag}: unlabelled at fit${by > 1 ? ` and at ${by}× round them` : ''}: ${missing.map((m) => m.name).join(', ')}`)
         }
         const hidden = models.filter((m) => !frame.layout.places.get(m.id)).map((m) => m.name)
         if (hidden.length) row.push(`[no name at fit: ${hidden.join(', ')}]`)
@@ -587,13 +602,16 @@ console.log('\ntown plans:')
       prop('hobbitHole', [-60, 0], 0.9, 1),
       prop('bridge', [0, -60], 0.4, 1, { ruined: true }),
       prop('quay', [60, -60], 0.4, 1, { ruined: true }),
+      prop('greatHall', [60, 30], 0.6, 1),
+      prop('longhouse', [-60, 30], -0.4, 1, { door: 'side' }),
+      prop('stair', [30, 60], 0.3, 1, { run: 6 }),
     ]
     const lm = { ...b.meta.landmarks[0], id: 'kinds', position: at(0, 0), dressing: { ...(b.meta.landmarks[0].dressing ?? { radius: 60, setting: 'village' }), props } }
     const world = { ...b, meta: { ...b.meta, landmarks: [lm] } } as LoadedWorld
     const plan = extractPlaceFeatures(world)
     checkPlan('every kind', world, plan)
-    const want = { buildings: 1 + 2 + 1 + 1 + 1 + 2 + 2, smials: 1, gates: 4, wheels: 3, bridges: 2 }
-    const got = { buildings: plan.buildings.length, smials: plan.smials.length, gates: plan.gates.length, wheels: plan.wheels.length, bridges: plan.bridges.length }
+    const want = { buildings: 1 + 2 + 1 + 1 + 1 + 2 + 2 + 2, smials: 1, gates: 4, wheels: 3, bridges: 2, quays: 1 + 1 }
+    const got = { buildings: plan.buildings.length, smials: plan.smials.length, gates: plan.gates.length, wheels: plan.wheels.length, bridges: plan.bridges.length, quays: plan.quays.length }
     for (const k of Object.keys(want) as (keyof typeof want)[]) if (want[k] !== got[k]) fail(`every kind: ${got[k]} ${k} drawn, want ${want[k]}`)
     if (!plan.walls.length) fail('every kind: the wall ring and palisade drew no walls')
   }
@@ -603,6 +621,7 @@ console.log('\ntown plans:')
   const FURNITURE = new Set([
     'bigTree', 'boat', 'cart', 'gardenPlot', 'haystack', 'lamp', 'partyTree', 'pony', 'signpost', 'standingStone', 'stones', 'tables',
     'stoneRing', 'barrow', 'ruins', 'troll', 'ship', 'cave', 'pool', 'crag', 'pits', 'eye', 'lavaGlow', 'smoke', 'seat', 'candles', 'webs', 'ent',
+    'channel', 'springBasin', 'banner', 'flowerPatch',
   ])
   const unknown = new Set<string>()
   for (const w of worlds) for (const lm of w.world?.meta.landmarks ?? []) for (const p of lm.dressing?.props ?? []) if (!PLAN_KINDS.has(p.kind) && !FURNITURE.has(p.kind)) unknown.add(p.kind)

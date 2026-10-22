@@ -281,9 +281,13 @@ export function layoutLabels(input: LabelLayoutInput): LabelLayout {
       const last = from?.places.get(p.id)
       const was = last ? POSITIONS.find(([s, k, f]) => s === last.slot && k === last.slide && f === last.far) : undefined
       const all = p.x > vw * 0.72 ? POSITIONS_INWARD : POSITIONS
-      // the held-off positions only where buildings crowd the markers (elsewhere a name that far
-      // from its marker reads as someone else's)
-      const fresh = polys.length ? all : all.filter((q) => !q[2])
+      // the held-off positions only where buildings crowd this marker (elsewhere a name that far
+      // from its marker reads as someone else's). Asking whether any building is in view was too
+      // loose: on Edoras's open map it held the ford's name off its marker and let phone zoom steps
+      // shuffle names.
+      const reach = p.r + FAR[FAR.length - 1]
+      const crowded = polys.some((q) => q.box.x0 < p.x + reach && q.box.x1 > p.x - reach && q.box.y0 < p.y + reach && q.box.y1 > p.y - reach)
+      const fresh = crowded ? all : all.filter((q) => !q[2])
       const order = was ? [was, ...fresh.filter((q) => q !== was)] : fresh
       let placed: PlacedLabel | null = null
       for (const pos of order) {

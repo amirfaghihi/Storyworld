@@ -1,5 +1,5 @@
 // Checks that TerrainSurface (src/terrain/surface.ts) matches the terrain as drawn.
-// Builds the real chunk geometry for Bree, Hobbiton and the Middle-earth overworld, samples six
+// Builds the real chunk geometry for Bree, Hobbiton, Edoras and the Middle-earth overworld, samples six
 // points inside every triangle and compares the triangle's own height and normal with the
 // surface's. Fails (exit code 1) if any height is off by 1e-4 m or more: the surface and
 // buildChunks must share one triangulation, or props, trees and the hero float or sink again.
@@ -19,6 +19,7 @@ import { WorldSchema, type World } from '../src/world/schema.ts'
 import { buildPlace } from '../src/places/buildPlace.ts'
 import { def as bree } from '../src/places/defs/bree.ts'
 import { def as hobbiton } from '../src/places/defs/hobbiton.ts'
+import { def as edoras } from '../src/places/defs/edoras.ts'
 
 const TOLERANCE = 1e-4
 const MAX_CLIMB = 1.9 // the controller's steepest walkable slope
@@ -102,7 +103,7 @@ function check(label: string, meta: World, hf: Heightfield, surface: TerrainSurf
 }
 
 let ok = true
-for (const def of [bree, hobbiton]) {
+for (const def of [bree, hobbiton, edoras]) {
   const w = buildPlace(def, [0, 0])
   ok = check(def.name, w.meta, w.heightfield, w.surface) && ok
 }

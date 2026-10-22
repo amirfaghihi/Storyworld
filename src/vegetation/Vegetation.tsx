@@ -5,7 +5,8 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { useWorld } from '@/world/WorldContext'
 import { useSettingsStore, byQuality, atLeast } from '@/store/stores'
 import { getGradientMap } from '@/render/gradientMap'
-import { scatter, type Instance } from './scatter'
+import { scatter, type Instance, type ScatterResult } from './scatter'
+import { extractPlaceFeatures } from '@/map2d/placeFeatures'
 import { vegOverrides } from '@/dressing/ground'
 import { applyExtensions } from '@/render/shaderExt'
 import { timeState } from '@/render/timeOfDay'
@@ -295,22 +296,54 @@ function Glowing({ geometry, items, palette }: { geometry: THREE.BufferGeometry;
   return <primitive object={mesh} />
 }
 
+/** How far round a building's footing the scatter keeps clear (trunk, rock or bush against the wall). */
+const BUILDING_CLEAR = 0.8
+
+/**
+ * Inside a place, drop whatever the scatter put inside a building or right against its walls: the
+ * scatter knows only the ground, so it once grew a pine inside Meduseld. The footings come from
+ * the town plan the map draws, which matches every building's collider.
+ */
+function clearOfBuildings(r: ScatterResult, rings: Float32Array[]): ScatterResult {
+  if (!rings.length) return r
+  const inside = (x: number, z: number) => {
+    for (const q of rings) {
+      let inPoly = false
+      let near = Infinity
+      for (let i = 0, j = q.length - 2; i < q.length; j = i, i += 2) {
+        const ax = q[j], az = q[j + 1], bx = q[i], bz = q[i + 1]
+        if (az > z !== bz > z && x < ((bx - ax) * (z - az)) / (bz - az) + ax) inPoly = !inPoly
+        const vx = bx - ax, vz = bz - az
+        const t = Math.min(1, Math.max(0, ((x - ax) * vx + (z - az) * vz) / (vx * vx + vz * vz || 1)))
+        near = Math.min(near, Math.hypot(x - ax - vx * t, z - az - vz * t))
+      }
+      if (inPoly || near < BUILDING_CLEAR) return true
+    }
+    return false
+  }
+  const out = {} as ScatterResult
+  for (const k of Object.keys(r) as (keyof ScatterResult)[]) out[k] = r[k].filter((t) => !inside(t.x, t.z))
+  return out
+}
+
 export function Vegetation() {
-  const { heightfield, surface, meta } = useWorld()
+  const world = useWorld()
+  const { heightfield, surface, meta } = world
   const quality = useSettingsStore((s) => s.quality)
   const density = byQuality(quality, { low: 0.4, medium: 0.7, high: 1, ultra: 1 })
   const geos = useMemo(makeGeometries, [])
   const terrainVersion = useTerrainVersion()
   const items = useMemo(() => {
     const t0 = performance.now()
-    const r = scatter(heightfield, surface, meta.seaLevel, density, vegOverrides(meta), meta)
+    const all = scatter(heightfield, surface, meta.seaLevel, density, vegOverrides(meta), meta)
+    const r = meta.place ? clearOfBuildings(all, extractPlaceFeatures(world).buildings.map((b) => b.ring)) : all
     if (import.meta.env.DEV)
       console.info(
         `vegetation: pine ${r.pine.length}, fir ${r.fir.length}, round ${r.round.length}, oak ${r.oak.length}, birch ${r.birch.length}, mallorn ${r.mallorn.length}, glowcap ${r.glowcap.length}, crag ${r.crag.length}, dead ${r.dead.length}, rock ${r.rock.length}, bush ${r.bush.length}, flower ${r.flower.length}, fern ${r.fern.length}, log ${r.log.length}, mushroom ${r.mushroom.length} in ${(performance.now() - t0).toFixed(0)} ms`,
       )
     return r
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heightfield, surface, meta, density, terrainVersion])
+  }, [world, heightfield, surface, meta, density, terrainVersion])
   const split = useMemo(() => {
     const short = (l: Instance[]) => l.filter((i) => !i.tall)
     const tall = (l: Instance[]) => l.filter((i) => i.tall)

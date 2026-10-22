@@ -204,11 +204,11 @@ A deep gorge in the White Mountains closed by the Deeping Wall and the fortress 
 
 ### Edoras (`edoras`, city)
 
-A green hill at the mouth of a mountain valley, ringed by a dyke and a wooden palisade, with the golden-roofed hall Meduseld at the top and a stream running down through the town. Below the gate lie the barrows of the kings, white with simbelmynë.
+A green hill at the mouth of a mountain valley, ringed by a dike, a wall and a thorn hedge, with the golden-roofed hall Meduseld on its crown and a stream running down beside the stone way through the town. North of the gate the road runs between the mounds of the kings, white on their western sides with simbelmynë.
 
 - Ground: meadow (blend 0.5, radius 65 m)
-- Vegetation: density 0.4, flowers: white
-- Set pieces: palisade, hall x4, barrow x3
+- Vegetation: density 0.25, flowers: white
+- Set pieces: wall x9, townGate, hall x5, barrow x6
 - Still to do: replace procedural set pieces with kit models; tune placement in the editor; add ambient sound/fog.
 
 ### Amon Hen (`amon-hen`, other)

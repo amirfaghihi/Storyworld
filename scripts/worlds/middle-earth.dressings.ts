@@ -315,19 +315,38 @@ export const dressings: Record<string, Dressing> = {
   },
   edoras: {
     radius: 65,
+    // the Enter arch on the road just outside the gate (the default spot is up the mountainside)
+    portal: [0, -36.5],
     setting:
-      'A green hill at the mouth of a mountain valley, ringed by a dyke and a wooden palisade, with the golden-roofed hall Meduseld at the top and a stream running down through the town. Below the gate lie the barrows of the kings, white with simbelmynë.',
+      'A green hill at the mouth of a mountain valley, ringed by a dike, a wall and a thorn hedge, with the golden-roofed hall Meduseld on its crown and a stream running down beside the stone way through the town. North of the gate the road runs between the mounds of the kings, white on their western sides with simbelmynë.',
     ground: { kind: 'meadow', blend: 0.5, inner: 0.3 },
-    vegetation: { density: 0.4, flowers: 'white' },
+    vegetation: { density: 0.25, flowers: 'white' },
     props: [
-      { kind: 'palisade', offset: [0, 0], params: { radius: 30, height: 4 } },
-      { kind: 'hall', offset: [0, -4], rotation: 0, color: '#b48a4a', params: { width: 14, length: 22, height: 9, roofColor: GOLD, pillars: true } },
-      { kind: 'hall', offset: [-14, 8], rotation: 0.6, color: '#a07a48', params: { width: 6, length: 8, height: 4, roofColor: '#8a7a4a' } },
-      { kind: 'hall', offset: [12, 10], rotation: -0.4, color: '#a07a48', params: { width: 6, length: 9, height: 4, roofColor: '#8a7a4a' } },
-      { kind: 'hall', offset: [4, 18], rotation: 0.2, color: '#a07a48', params: { width: 5, length: 7, height: 3.5, roofColor: '#8a7a4a' } },
-      { kind: 'barrow', offset: [-8, 40], params: { radius: 4, flowers: true } },
-      { kind: 'barrow', offset: [0, 42], params: { radius: 4, flowers: true } },
-      { kind: 'barrow', offset: [8, 40], params: { radius: 4, flowers: true } },
+      // the wall: an octagon round the town (centre 16 m north of the pin), open in the north side for the gate
+      { kind: 'wall', offset: [14.8, -16.0], rotation: -1.571, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [10.5, -5.5], rotation: -2.356, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [0.0, -1.2], rotation: -3.142, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [-10.5, -5.5], rotation: 2.356, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [-14.8, -16.0], rotation: 1.571, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [-10.5, -26.5], rotation: 0.785, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [10.5, -26.5], rotation: -0.785, color: '#8a8273', params: { length: 12.8, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [-4.66, -30.8], rotation: 0, color: '#8a8273', params: { length: 3.52, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'wall', offset: [4.66, -30.8], rotation: 0, color: '#8a8273', params: { length: 3.52, height: 3, thickness: 1.4, cap: '#a69e8e', seg: 1 } },
+      { kind: 'townGate', offset: [0, -30.8], rotation: 0, params: { width: 4.6, open: 0.9, board: false, wood: '#5a4030' } },
+      // Meduseld on the crown, on the gate's axis with its doors to the north; no pillars
+      { kind: 'hall', offset: [0, -12], rotation: Math.PI, color: '#6f4e30', params: { width: 8, length: 16, height: 5, roofColor: GOLD } },
+      // timber houses with their backs to the wall: two face each other across the gate square, two flank the hall
+      { kind: 'hall', offset: [-7.8, -23.8], rotation: 2.356, color: '#6f5236', params: { width: 4, length: 7, height: 2.6, roofColor: '#9a8a52' } },
+      { kind: 'hall', offset: [7.9, -23.6], rotation: -2.38, color: '#6f5236', params: { width: 4, length: 6.5, height: 2.6, roofColor: '#a88a4e' } },
+      { kind: 'hall', offset: [-10.5, -13.8], rotation: 3.19, color: '#6f5236', params: { width: 4, length: 6, height: 2.6, roofColor: '#9a8a52' } },
+      { kind: 'hall', offset: [10.5, -14.2], rotation: 3.08, color: '#6f5236', params: { width: 4, length: 6, height: 2.6, roofColor: '#b39556' } },
+      // the mounds of the kings north of the gate, either side of the road
+      { kind: 'barrow', offset: [-6, -40], params: { radius: 3.2, flowers: true, stone: false } },
+      { kind: 'barrow', offset: [6, -40], params: { radius: 3.2, flowers: true, stone: false } },
+      { kind: 'barrow', offset: [-6, -47], params: { radius: 3.2, flowers: true, stone: false } },
+      { kind: 'barrow', offset: [6, -47], params: { radius: 3.2, flowers: true, stone: false } },
+      { kind: 'barrow', offset: [-6, -54], params: { radius: 3.2, flowers: true, stone: false } },
+      { kind: 'barrow', offset: [6, -54], params: { radius: 3.2, flowers: true, stone: false } },
     ],
   },
   'amon-hen': {

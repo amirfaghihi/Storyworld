@@ -67,10 +67,13 @@ export const playerState = {
   ready: false,
 }
 
+/** How far the follow camera looks down, in radians, until the player or a place says otherwise. */
+export const DEFAULT_PITCH = 0.38
+
 /** Camera orbit state shared between input, camera and controller. */
 export const cameraState = {
   yaw: Math.PI, // camera starts north of the player, looking south (+Z)
-  pitch: 0.38,
+  pitch: DEFAULT_PITCH,
   distance: 13,
 }
 if (import.meta.env.DEV) (window as unknown as { __cam: unknown }).__cam = cameraState

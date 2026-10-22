@@ -1,5 +1,8 @@
 import type { LoadedWorld } from '@/world/loadWorld'
 import { PLACE_FOOTPRINT } from '@/dressing/placeKinds'
+import { greatHallFrame } from '@/dressing/kinds/greatHall'
+import { longhouseFrame } from '@/dressing/kinds/longhouse'
+import { stairFrame } from '@/dressing/kinds/stair'
 import { PROP_FOOTPRINT } from '@/dressing/propKinds'
 import { B, P, S, at, makePropContext, type PropContext } from '@/dressing/propUtil'
 import { hash2 } from '@/terrain/faceColors'
@@ -10,8 +13,10 @@ import { hash2 } from '@/terrain/faceColors'
  * world metres at their real positions and turns.
  *
  * Nothing here is built: each piece's outline comes from the builders' own size tables
- * (PLACE_FOOTPRINT, PROP_FOOTPRINT) and params, placed with the context and transform the
- * builders use (propUtil.makePropContext and at), so the plan cannot drift from the 3D pieces.
+ * (PLACE_FOOTPRINT, PROP_FOOTPRINT) and params, or from the frame functions the kinds in their
+ * own files share with their builders (greatHallFrame, longhouseFrame, stairFrame), placed with the
+ * context and transform the builders use (propUtil.makePropContext and at), so the plan cannot
+ * drift from the 3D pieces.
  * A building's footprint is its footing, the same rect its collider uses (the walls plus the
  * 0.15 m plinth all round; a mill's base 0.2 m), which scripts/check-map-labels.ts checks
  * against the colliders LandmarkProps registers, as it checks gate posts and mill wheels.
@@ -38,7 +43,7 @@ export interface FeatureRing {
 }
 
 export interface PlaceFeatures {
-  /** cottages, the inn, mills, halls, towers: footing outline and the roof ridge along it (none for a round tower) */
+  /** cottages, the inn, mills, halls, longhouses, towers: footing outline and the roof ridge along it (none for a round tower) */
   buildings: (FeatureRing & { ridge: Float32Array; inn: boolean })[]
   /** hobbit-holes: the facade dug into the hill, the round door, and the turf brow behind */
   smials: (FeatureRing & { door: [number, number]; doorColor: string; brow: Float32Array })[]
@@ -51,6 +56,7 @@ export interface PlaceFeatures {
   gates: { a: [number, number]; b: [number, number]; box: Box; of?: string }[]
   /** bridge decks (a ruined one in two halves), with their parapets (empty for a flat plank bridge) */
   bridges: (FeatureRing & { sides: Float32Array })[]
+  /** stone built across the ground: quays, and stairs (the treads and their cheeks, foot to head) */
   quays: FeatureRing[]
   wells: { x: number; z: number; r: number; box: Box }[]
   /** open pavilions: the ring of poles */
@@ -92,6 +98,9 @@ export const PLAN_KINDS: ReadonlySet<string> = new Set([
   'wallRing',
   'palisade',
   'hobbitHole',
+  'greatHall',
+  'longhouse',
+  'stair',
 ])
 
 function boxOf(pts: ArrayLike<number>, pad = 0): Box {
@@ -240,6 +249,26 @@ function addProp(f: PlaceFeatures, kind: string, c: PropContext, of: string) {
       const w = P(c, 'width', 8) * c.scale
       const L = P(c, 'length', 12) * c.scale
       building(w / 2 + 0.15, L / 2 + 0.15, L / 2)
+      return
+    }
+    case 'greatHall': {
+      // the body collider's half extents (walls plus the 0.2 m footing all round), ridge along local z
+      const g = greatHallFrame(c)
+      building(g.hw, g.hd, g.L / 2)
+      return
+    }
+    case 'longhouse': {
+      // the footing: walls plus 0.15 m all round, as the body collider; ridge along local z
+      const h = longhouseFrame(c)
+      building(h.w / 2 + 0.15, h.L / 2 + 0.15, h.L / 2)
+      return
+    }
+    case 'stair': {
+      // the treads and the cheeks either side, from the foot (local z 0) up to the head (-run),
+      // drawn as stone like a quay
+      const { width, run } = stairFrame(c)
+      const ring = rect(c, width / 2, run / 2, 0, -run / 2)
+      f.quays.push({ ring, box: boxOf(ring), of })
       return
     }
     case 'tower': {

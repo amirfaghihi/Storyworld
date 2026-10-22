@@ -62,7 +62,7 @@ export const middleEarth: WorldBuildConfig = {
     { id: 'fangorn', displayName: 'Fangorn Forest', type: 'forest', svg: D(1000, 712) },
     { id: 'isengard', displayName: 'Isengard', type: 'fortress', svg: D(898, 767) },
     { id: 'helms-deep', displayName: "Helm's Deep", type: 'fortress', svg: D(904, 843) },
-    { id: 'edoras', displayName: 'Edoras', type: 'city', svg: D(1038, 858) },
+    { id: 'edoras', displayName: 'Edoras', type: 'city', svg: D(1038, 858), placeId: 'edoras' },
     { id: 'amon-hen', displayName: 'Amon Hen', type: 'other', svg: D(1232, 878) },
     { id: 'dead-marshes', displayName: 'The Dead Marshes', type: 'other', svg: D(1325, 840) },
     { id: 'morannon', displayName: 'The Morannon (Black Gate)', type: 'fortress', svg: D(1421, 865) },

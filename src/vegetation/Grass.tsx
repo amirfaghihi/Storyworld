@@ -11,6 +11,8 @@ import { BIOME } from '@/world/biomes'
 import { groundOverrides, overrideWeight } from '@/dressing/ground'
 import { onTerrainEdit } from '@/editor/terrainEdit'
 import { getMoodMap, moodAt } from '@/vegetation/mood'
+import { makePropContext } from '@/dressing/propUtil'
+import { channelFootprint } from '@/dressing/kinds/channel'
 
 const CELL = 1.0 // metres between tufts
 const BLADE_FOOT = 0.13 // half width of a blade's base, before instance scale (tuftGeometry's w)
@@ -78,6 +80,23 @@ export function Grass() {
   const noise = useMemo(() => terrainNoise(meta.seed), [meta.seed])
   const overrides = useMemo(() => groundOverrides(meta), [meta])
   const tuftScale = meta.place ? 0.62 : 1 // 1:1 places: finer grass at eye level
+  // no tufts through a stream's channel, whose water is drawn only a hand's breadth above the ground
+  const bare = useMemo(() => {
+    const rects: { x: number; z: number; hw: number; hd: number; cs: number; sn: number; r: number }[] = []
+    for (const lm of meta.landmarks)
+      for (const [i, p] of (lm.dressing?.props ?? []).entries()) {
+        if (p.kind !== 'channel') continue
+        const f = channelFootprint(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+        rects.push({ ...f, cs: Math.cos(f.rot), sn: Math.sin(f.rot), r: Math.hypot(f.hw, f.hd) })
+      }
+    return rects
+  }, [meta, surface])
+  const onBare = (x: number, z: number) =>
+    bare.some((b) => {
+      const dx = x - b.x, dz = z - b.z
+      if (Math.abs(dx) > b.r || Math.abs(dz) > b.r) return false
+      return Math.abs(b.cs * dx - b.sn * dz) < b.hw && Math.abs(b.sn * dx + b.cs * dz) < b.hd
+    })
   // absolute grid cell of each instance
   const cells = useRef(new Int32Array(total * 2).fill(0x7fffffff))
 
@@ -90,7 +109,7 @@ export function Grass() {
     const b = hf.biomeAt(x, z)
     const grassy = b === BIOME.grass || b === BIOME.forest || b === BIOME.marsh || (b === BIOME.sand && r3 > 0.8)
     const slope = grassy ? hf.slopeAt(x, z) : 9
-    const grows = grassy && slope <= 0.85 && r3 >= 0.18
+    const grows = grassy && slope <= 0.85 && r3 >= 0.18 && !onBare(x, z)
     const y = grows ? surface.height(x, z) : 0
     const sx = (1.0 + r3 * 0.6) * tuftScale
     const h = (0.28 + r2 * 0.3) * tuftScale

@@ -28,11 +28,33 @@ function polylineDist(pts: [number, number][], x: number, z: number): number {
     const vx = bx - ax, vz = bz - az
     const L2 = vx * vx + vz * vz || 1
     const t = Math.min(1, Math.max(0, ((x - ax) * vx + (z - az) * vz) / L2))
-    const d = Math.hypot(x - (ax + vx * t), z - (az + vz * t))
+    const ex = x - (ax + vx * t), ez = z - (az + vz * t)
+    const d = Math.sqrt(ex * ex + ez * ez)
     if (d < best) best = d
   }
   return best
 }
+
+/**
+ * A polyline's bounding box grown by `reach`: beyond it the line is further than `reach` from any
+ * pixel, so a pass that only acts within `reach` can skip the per-segment distance there. Places
+ * are mostly far from any given river or lane, and those distances were most of the build time.
+ */
+function lineBox(pts: [number, number][], reach: number) {
+  let x0 = Infinity, z0 = Infinity, x1 = -Infinity, z1 = -Infinity
+  for (const [x, z] of pts) {
+    x0 = Math.min(x0, x); x1 = Math.max(x1, x)
+    z0 = Math.min(z0, z); z1 = Math.max(z1, z)
+  }
+  return { x0: x0 - reach, z0: z0 - reach, x1: x1 + reach, z1: z1 + reach }
+}
+const outside = (b: { x0: number; z0: number; x1: number; z1: number }, x: number, z: number) => x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1
+
+/** The steepest ground (rise over run) snow lies on above a place's snowline; steeper is bare rock. */
+const SNOW_HOLDS = 3.2
+/** ...and the steepest grass holds on within ROCK_BAND metres below the snowline */
+const GRASS_HOLDS = 1.0
+const ROCK_BAND = 75
 
 /** How far past 0.55 r (in cells) a flat stays fully level; see the flats pass for why a quarter. */
 const CORE_MARGIN = 0.25
@@ -63,6 +85,11 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
   //      polyline to sea + 6 m and leave single-pixel pits wherever the hill is higher.
   //   6. biome
   const riverDist = new Float64Array(def.rivers.length)
+  // Past these boxes a river's distance cannot reach its valley, channel, bank or sand (the
+  // wobble shifts it by at most 0.18 of the width), so it reads as Infinity there with the same
+  // result; past a lane's box the lane cannot paint road.
+  const riverBox = def.rivers.map((r) => lineBox(r.points, Math.max(r.valley?.width ?? 0, r.width / 2 + Math.max(r.bank ?? 7, 2.6)) + r.width * 0.18 + 1))
+  const laneBox = def.lanes.map((l) => lineBox(l.points, l.width / 2 + 1))
   for (let iz = 0; iz < height; iz++) {
     for (let ix = 0; ix < width; ix++) {
       const x = ix * cell
@@ -93,6 +120,10 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
       let valley = 0
       for (let i = 0; i < def.rivers.length; i++) {
         const r = def.rivers[i]
+        if (outside(riverBox[i], x, z)) {
+          riverDist[i] = Infinity
+          continue
+        }
         const wobble = fbm(x, z, 22) * r.width * 0.18
         const d = polylineDist(r.points, x, z) + wobble
         riverDist[i] = d
@@ -176,13 +207,35 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
           const edge = Math.min(x, z, W - x, H - z)
           if (edge < def.rim.width * 0.7 && fbm(x + 300, z + 300, 35) > -0.35) b = BIOME.forest
         }
-        for (const l of def.lanes) {
-          if (polylineDist(l.points, x, z) < l.width / 2) b = BIOME.road
+        // a ragged snowline, so a peak's white cap does not end on a contour
+        if (def.snowline !== undefined && h > def.snowline + fbm(x + 77, z - 41, 30) * 8) b = BIOME.snow
+        for (let i = 0; i < def.lanes.length; i++) {
+          const l = def.lanes[i]
+          if (!outside(laneBox[i], x, z) && polylineDist(l.points, x, z) < l.width / 2) b = BIOME.road
         }
       }
       heights[iz * width + ix] = h
       biome[iz * width + ix] = b
     }
+  }
+  // A mountain's upper slopes: snow does not lie on a sheer face, so only the near-vertical crags of
+  // the cap are bare rock (a peak at walking scale is steep almost everywhere, and a lower cutoff
+  // left the Starkhorn's cap three parts rock and no longer white); below the snow, steep grass
+  // gives way to rock for ROCK_BAND metres, so the peak does not rise out of the meadow as one
+  // smooth green cone.
+  if (def.snowline !== undefined) {
+    const rockFrom = def.snowline - ROCK_BAND
+    const at = (ix: number, iz: number) => heights[Math.min(height - 1, Math.max(0, iz)) * width + Math.min(width - 1, Math.max(0, ix))]
+    for (let iz = 0; iz < height; iz++)
+      for (let ix = 0; ix < width; ix++) {
+        const i = iz * width + ix
+        const snow = biome[i] === BIOME.snow
+        if (!snow && !(biome[i] === BIOME.grass && heights[i] > rockFrom + fbm(ix * cell - 210, iz * cell + 95, 26) * 12)) continue
+        const gx = (at(ix + 1, iz) - at(ix - 1, iz)) / ((Math.min(width - 1, ix + 1) - Math.max(0, ix - 1)) * cell)
+        const gz = (at(ix, iz + 1) - at(ix, iz - 1)) / ((Math.min(height - 1, iz + 1) - Math.max(0, iz - 1)) * cell)
+        const limit = snow ? SNOW_HOLDS : GRASS_HOLDS
+        if (gx * gx + gz * gz > limit * limit) biome[i] = BIOME.rock
+      }
   }
   const heightfield = new Heightfield(width, height, cell, heights, biome)
 
@@ -200,6 +253,7 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
     cameraDistance: def.cameraDistance ?? 10,
     speedScale: def.speedScale ?? 0.8,
     spawnYaw: def.spawnYaw,
+    spawnPitch: def.spawnPitch,
     // the map frames the village, not the wooded rim that closes the horizon
     mapBounds: def.rim ? ([def.rim.width * 0.55, def.rim.width * 0.55, W - def.rim.width * 0.55, H - def.rim.width * 0.55] as [number, number, number, number]) : undefined,
     place: {

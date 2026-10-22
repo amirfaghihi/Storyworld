@@ -6,12 +6,13 @@ import { playerState, useSettingsStore, byQuality } from '@/store/stores'
 import { hash2 } from '@/terrain/faceColors'
 import { chimneyTop } from '@/dressing/placeKinds'
 import { makePropContext } from '@/dressing/propUtil'
+import { springBasinFrame } from '@/dressing/kinds/springBasin'
 import { useTerrainVersion } from '@/editor/useTerrainVersion'
 import { useEditorStore } from '@/editor/editorStore'
 import { timeState } from './timeOfDay'
 import { AURAS, auraState } from './auras'
 
-type Kind = 'smoke' | 'embers' | 'fireflies' | 'leaves' | 'candles' | 'dust' | 'wisp' | 'spore'
+type Kind = 'smoke' | 'embers' | 'fireflies' | 'leaves' | 'candles' | 'dust' | 'wisp' | 'spore' | 'spray'
 
 interface EmitterDef {
   kind: Kind
@@ -138,6 +139,18 @@ class Emitter {
         this.vel.set([(r() - 0.5) * 0.4, -0.08 - r() * 0.14, (r() - 0.5) * 0.4], i * 3)
         this.maxLife[i] = 12 + r() * 10
         break
+      case 'spray':
+        // droplets thrown up where falling water strikes a pool and dropping back; a few in three
+        // are a slower, softer mist that hangs a moment longer
+        y = d.y + 0.02
+        if (this.seed[i] < 0.3) {
+          this.vel.set([(r() - 0.5) * 0.25, (0.15 + r() * 0.25) * d.scale, (r() - 0.5) * 0.25], i * 3)
+          this.maxLife[i] = 0.9 + r() * 0.8
+        } else {
+          this.vel.set([(r() - 0.5) * 0.9, (0.8 + r() * 0.9) * d.scale, (r() - 0.5) * 0.9], i * 3)
+          this.maxLife[i] = 0.35 + r() * 0.35
+        }
+        break
     }
     this.pos.set([x, y, z], i * 3)
     this.life[i] = initial ? r() * this.maxLife[i] : 0
@@ -212,6 +225,18 @@ class Emitter {
           this.alpha[i] = Math.sin(k * Math.PI) * 0.55
           break
         }
+        case 'spray':
+          if (this.seed[i] < 0.3) {
+            // mist: swells and fades
+            this.size[i] = (0.25 + 0.35 * k) * d.scale
+            this.alpha[i] = 0.22 * Math.sin(k * Math.PI)
+          } else {
+            this.vel[o + 1] -= 6 * dt
+            this.size[i] = (0.11 - 0.04 * k) * d.scale
+            // gone once it drops back into the pool
+            this.alpha[i] = this.pos[o + 1] < d.y ? 0 : 0.8 * Math.min(1, k * 8) * (1 - k)
+          }
+          break
       }
       this.pos[o] += this.vel[o] * dt
       this.pos[o + 1] += this.vel[o + 1] * dt
@@ -246,6 +271,11 @@ function deriveEmitters(world: ReturnType<typeof useWorld>, density: number): Em
       } else if (p.kind === 'candles') {
         const r = typeof p.params.radius === 'number' ? p.params.radius : 25
         out.push({ kind: 'candles', x, y: g(x, z), z, radius: r, count: Math.round(50 * density), color: C('#9fd8ff'), color2: C('#cfe8ff'), scale: 1 })
+      } else if (p.kind === 'springBasin') {
+        // spray where the water falling from the carved head strikes the basin: the same context as
+        // buildProps gives the piece, so the same point the builder draws the fall to
+        const f = springBasinFrame(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+        out.push({ kind: 'spray', x: f.splash[0], y: f.splash[1], z: f.splash[2], radius: 0.1, count: Math.round(30 * density), color: C('#f2f7f9'), color2: C('#d6e6ee'), scale: 1 })
       } else if (p.kind === 'pits') {
         out.push({ kind: 'smoke', x, y: g(x, z) + 4, z, radius: 18, count: Math.round(70 * density), color: C('#4a4046'), color2: C('#6a6068'), scale: 0.9 })
       } else {
@@ -305,7 +335,7 @@ export function Particles() {
   const points = useMemo(
     () =>
       emitters.map((e) => {
-        const m = new THREE.Points(e.geometry, e.def.kind === 'smoke' || e.def.kind === 'leaves' || e.def.kind === 'spore' ? normal : additive)
+        const m = new THREE.Points(e.geometry, e.def.kind === 'smoke' || e.def.kind === 'leaves' || e.def.kind === 'spore' || e.def.kind === 'spray' ? normal : additive)
         m.frustumCulled = true
         return m
       }),
@@ -319,7 +349,7 @@ export function Particles() {
     time.current += dt
     const p = playerState.position
     additive.uniforms.uHdr.value = 1.5 + timeState.lamp * 1.8
-    // smoke and leaves are lit by the sun, so they go dark with it and with the weather
+    // smoke, leaves and spray are lit by the sun, so they go dark with it and with the weather
     normal.uniforms.uHdr.value = (0.28 + 0.72 * timeState.day) * (1 - 0.4 * timeState.gloom)
     emitters.forEach((e, i) => {
       // only simulate emitters near enough to be seen

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useWorld } from '@/world/WorldContext'
-import { playerState, cameraState, usePlayerStore, useUiStore, GROUND_RING_R } from '@/store/stores'
+import { playerState, cameraState, usePlayerStore, useUiStore, GROUND_RING_R, DEFAULT_PITCH } from '@/store/stores'
 import { input } from './useInput'
 import { writeHash } from '@/router'
 import { Walker, colliderVersion } from './collision'
@@ -14,6 +14,9 @@ export const RUN_SPEED = 12
  * Walker (collision.ts) slides the body along walls and stands it exactly on the surface; this
  * component turns input into a wish direction, faces the player and publishes the ground.
  */
+/** the pitch a place's spawnPitch last set, so it can be undone once the traveller leaves */
+let placePitch: number | null = null
+
 export function KinematicController() {
   const { heightfield: hf, surface, meta } = useWorld()
   const saveTimer = useRef(0)
@@ -47,6 +50,17 @@ export function KinematicController() {
     if (meta.spawnYaw !== undefined && !fromHash && !saved) {
       cameraState.yaw = meta.spawnYaw
       playerState.yaw = meta.spawnYaw + Math.PI
+    }
+    // A fresh arrival at a place's spawn takes the place's own pitch (Edoras tilts up so the golden
+    // roof is in the first frame). Any later arrival, by the exit, a link or a reload, puts the
+    // default back if the pitch is still the one a place set, so the tilt never follows the
+    // traveller out; a pitch the player chose is left alone.
+    if (!fromHash && !saved && meta.spawnPitch !== undefined) {
+      cameraState.pitch = meta.spawnPitch
+      placePitch = meta.spawnPitch
+    } else if (placePitch !== null) {
+      if (cameraState.pitch === placePitch) cameraState.pitch = DEFAULT_PITCH
+      placePitch = null
     }
     return () => {
       playerState.ready = false

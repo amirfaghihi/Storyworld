@@ -42,6 +42,8 @@ import {
   dome,
   dodeca,
   gableRoof,
+  gableRoofLow,
+  roofBase,
 } from './propUtil'
 import { PLACE_KINDS } from './placeKinds'
 
@@ -209,13 +211,25 @@ export const KINDS: Record<string, Builder> = {
     const th = P(c, 'thickness', PROP_FOOTPRINT.wall.thickness)
     const color = c.color ?? '#8f8d86'
     const n = Math.max(1, Math.ceil(L / 6))
-    // one run whose foot follows the lowest ground across it and whose top follows the centre line
-    const top = (lx: number) => c.ground(...at(c, lx, 0)) + h
-    out.push({ geo: groundStrip(c, -L / 2 - 0.15, L / 2 + 0.15, 0, th, (lx) => minAcross(c, lx, 0, th) - 0.2, top), color })
+    // segment length of the strips: 0.5 m follows any ground; long rings on gentle ground pass 1
+    const seg = P(c, 'seg', 0.5)
+    // `level`: one top for the whole run, the highest centre-line ground along it + h (a parapet
+    // whose coping stays level where the ground under it dips); otherwise the top follows the
+    // centre line. The foot follows the lowest ground across it either way.
+    const level = B(c, 'level')
+    let lv = -Infinity
+    if (level) for (let k = 0; k <= 12; k++) lv = Math.max(lv, c.ground(...at(c, -L / 2 + (k * L) / 12, 0)) + h)
+    const top: (lx: number) => number = level ? () => lv : (lx) => c.ground(...at(c, lx, 0)) + h
+    out.push({ geo: groundStrip(c, -L / 2 - 0.15, L / 2 + 0.15, 0, th, (lx) => minAcross(c, lx, 0, th) - 0.2, top, seg), color })
+    // `cap`: a coping strip 6 cm proud of each face, in its own colour (one segment when level)
+    const cap = c.params.cap
+    if (typeof cap === 'string')
+      out.push({ geo: groundStrip(c, -L / 2 - 0.15, L / 2 + 0.15, 0, th + 0.12, (lx) => top(lx) - 0.02, (lx) => top(lx) + 0.12, level ? L + 0.3 : seg), color: cap })
     for (let i = 0; i < n; i++) {
       const lx = -L / 2 + (i + 0.5) * (L / n)
       if (B(c, 'crenellated') && i % 2 === 0) out.push({ geo: groundStrip(c, lx - L / n / 4, lx + L / n / 4, 0, th, (u) => top(u) - 0.05, (u) => top(u) + 1.2), color })
-      solidBox(c, lx, 0, L / n / 2 + 0.15, th / 2, h)
+      if (level) solidBox(c, lx, 0, L / n / 2 + 0.15, th / 2, 0, c.rot, { top: lv })
+      else solidBox(c, lx, 0, L / n / 2 + 0.15, th / 2, h)
     }
   },
 
@@ -232,8 +246,10 @@ export const KINDS: Record<string, Builder> = {
     // stone footing from below the lowest ground to just above the floor
     out.push(block(w + 0.3, L + 1.0, foot, y + 0.4, '#9a958a', c.x, c.z, c.rot))
     out.push({ geo: box(w, h, L), color, position: [c.x, y + h / 2, c.z], rotation: [0, c.rot, 0] })
-    const r = (w * 1.18) / Math.sqrt(3)
-    out.push({ geo: gableRoof(w, L), color: roofColor, position: [c.x, y + h + r * 0.5 - 0.2, c.z], rotation: [0, c.rot, 0] })
+    // a hall's pitch, the ridge `pitch` x the width above the eaves (the bare equilateral gableRoof
+    // rises a whole width); its eaves sit 0.2 m down on the wall tops, so no gap shows under them
+    const roof = gableRoofLow(w, L, P(c, 'pitch', 0.5))
+    out.push({ geo: roof, color: roofColor, position: [c.x, y + h + roofBase(roof) - 0.2, c.z], rotation: [0, c.rot, 0] })
     if (B(c, 'pillars')) {
       // the porch pillars stand in front of the footing, so each reaches its own ground
       for (let i = -2; i <= 2; i++) {
@@ -309,9 +325,11 @@ export const KINDS: Record<string, Builder> = {
     const color = c.color ?? '#4c8a3f'
     // A rigid box on a slope floats at one end and buries the other, so every piece is a strip
     // whose foot follows the lowest ground across the hedge and whose top follows its centre line.
-    // Pieces are about 2 m long and overlap by 0.2 m; each has its own collider.
+    // Pieces are about 2 m long and overlap by 0.2 m; each has its own collider. `seg` is the
+    // strips' segment length (0.5 m; long rings on gentle ground pass 1).
+    const seg = P(c, 'seg', 0.5)
     const piece = (pc: PropContext, half: number, depth: number) => {
-      out.push({ geo: groundStrip(pc, -half, half, 0, depth, (lx) => minAcross(pc, lx, 0, depth) - 0.1, (lx) => pc.ground(...at(pc, lx, 0)) + h), color })
+      out.push({ geo: groundStrip(pc, -half, half, 0, depth, (lx) => minAcross(pc, lx, 0, depth) - 0.1, (lx) => pc.ground(...at(pc, lx, 0)) + h, seg), color })
       solidBox(pc, 0, 0, half, depth / 2, h + 0.2)
     }
     if (B(c, 'ring')) {
@@ -431,15 +449,19 @@ export const KINDS: Record<string, Builder> = {
     const base = Math.min(y, footMinDisc(c, 0, 0, r) - 0.4)
     const sy = (y + r * 0.6 - base) / r
     out.push({ geo: dome(r), color: '#86b85a', position: [c.x, base, c.z], scale: [1, sy, 1] })
-    out.push({ geo: box(0.8, 2.2, 0.4), color: '#8f8d86', position: [c.x, y + r * 0.6 + 0.6, c.z] })
+    // a standing stone on the crown (the Barrow-downs); the kings' mounds at Edoras are plain green
+    if (B(c, 'stone', true)) out.push({ geo: box(0.8, 2.2, 0.4), color: '#8f8d86', position: [c.x, y + r * 0.6 + 0.6, c.z] })
     if (B(c, 'flowers')) {
-      for (let i = 0; i < 14; i++) {
-        const a = hash2(i, 11) * Math.PI * 2
-        const d = Math.sqrt(hash2(i, 12)) * r * 0.9
+      // simbelmynë: small white blossoms on the west flank, lit like everything else (unlit, the
+      // bloom turned them into glowing balls by day)
+      const n = Math.round(6 * r)
+      for (let i = 0; i < n; i++) {
+        const a = Math.PI / 2 + hash2(i, 11 + c.seed) * Math.PI
+        const d = Math.sqrt(hash2(i, 12 + c.seed)) * r * 0.92
         const px = c.x + Math.cos(a) * d
         const pz = c.z + Math.sin(a) * d
         const py = base + Math.sqrt(Math.max(0, r * r - d * d)) * sy
-        out.push({ geo: sphere(0.16, 5, 4), color: '#ffffff', position: [px, py + 0.1, pz], unlit: true })
+        out.push({ geo: sphere(0.12, 5, 3), color: '#f3f1e8', position: [px, py + 0.04, pz] })
       }
     }
   },
@@ -794,17 +816,35 @@ export const KINDS: Record<string, Builder> = {
   },
 
   seat(c, out) {
-    // a stone throne on a footing: level seat on the high side, every block down to the lowest ground
-    const { floor: y, foot } = plinth(c, 1.4, 1.0)
-    const stone = '#a8a49a'
-    out.push(block(2.4, 2.0, foot, y + 1.2, stone, c.x, c.z, c.rot))
-    const [bx, bz] = at(c, 0, -0.8)
-    out.push(block(2.4, 0.5, foot, y + 3.2, stone, bx, bz, c.rot))
-    for (const s of [-1, 1]) {
-      const [ax, az] = at(c, s * 1.2, 0)
-      out.push(block(0.4, 2.0, foot, y + 1.9, stone, ax, az, c.rot))
+    // A stone seat on a footing: level seat on the high side, every block down to the lowest
+    // ground. The defaults are the Amon Hen throne; Edoras sets a pair of benches with low arms at
+    // its stair head. It faces local +z, the back on its -z edge, the arms on its x ends.
+    const w = P(c, 'width', 2.4)
+    const d = P(c, 'depth', 2.0)
+    const sh = P(c, 'seatHeight', 1.2)
+    const back = P(c, 'back', 3.2) // top of the back above the floor; at or below the seat, none (a bench)
+    const arms = B(c, 'arms', true)
+    const armH = P(c, 'armHeight', 0.7) // arm blocks' top above the seat
+    const stone = S(c, 'stone', '#a8a49a')
+    // the throne's 0.4 m arms and 0.5 m back, thinner on a smaller seat so a bench keeps room to sit
+    const aw = Math.min(0.4, w / 6)
+    const bt = Math.min(0.5, d * 0.35)
+    // footprint: the seat and the arms that stand half outside its ends (the back reaches 5 cm past
+    // the -z edge, but it too runs down to `foot`)
+    const hw = w / 2 + (arms ? aw / 2 : 0)
+    const { floor: y, foot } = plinth(c, hw, d / 2)
+    out.push(block(w, d, foot, y + sh, stone, c.x, c.z, c.rot))
+    if (back > sh) {
+      const [bx, bz] = at(c, 0, -d / 2 - 0.05 + bt / 2)
+      out.push(block(w, bt, foot, y + back, stone, bx, bz, c.rot))
     }
-    solidBox(c, 0, 0, 1.4, 1.0, 0, c.rot, { top: y + 1.2 })
+    if (arms)
+      for (const s of [-1, 1]) {
+        const [ax, az] = at(c, (s * w) / 2, 0)
+        out.push(block(aw, d, foot, y + sh + armH, stone, ax, az, c.rot))
+      }
+    // it blocks (she cannot sit): one box over the footprint at the seat's height
+    solidBox(c, 0, 0, hw, d / 2, 0, c.rot, { top: y + sh })
   },
 
   candles(c, out) {
@@ -865,7 +905,7 @@ export function buildProps(
   props.forEach((p, i) => {
     const builder = KINDS[p.kind]
     if (!builder) {
-      if (import.meta.env.DEV) console.warn(`unknown prop kind "${p.kind}"`)
+      if (import.meta.env?.DEV) console.warn(`unknown prop kind "${p.kind}"`)
       return
     }
     builder(makePropContext(landmark, p, surface, seaLevel, seed + i, colliders), out)

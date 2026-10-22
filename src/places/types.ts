@@ -81,6 +81,8 @@ export interface PlaceDef {
   seaLevel: number
   palette: Record<string, string>
   base: { height: number; roll: number; wavelength: number }
+  /** height above which the land lies under snow (bare rock where it is too steep to hold it) */
+  snowline?: number
   /** wooded hills around the edge so the horizon is closed */
   rim?: { width: number; height: number }
   hills: Hill[]
@@ -91,6 +93,8 @@ export interface PlaceDef {
   woods: Wood[]
   spawn: [number, number]
   spawnYaw?: number
+  /** camera pitch (radians, looking down) on a fresh arrival at the spawn; default DEFAULT_PITCH */
+  spawnPitch?: number
   cameraDistance?: number
   speedScale?: number
   fog?: [number, number]

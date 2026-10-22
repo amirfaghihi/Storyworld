@@ -33,8 +33,10 @@ export function Portals() {
     return meta.landmarks
       .filter((l) => l.placeId)
       .map((l) => ({
-        x: l.position[0] + 6,
-        z: l.position[1] + 8,
+        // beside the pin unless the dressing puts the arch somewhere better (Edoras: at its gate,
+        // since the default spot is up the mountainside behind the town)
+        x: l.position[0] + (l.dressing?.portal?.[0] ?? 6),
+        z: l.position[1] + (l.dressing?.portal?.[1] ?? 8),
         radius: 7,
         label: `Enter ${l.displayName}`,
         portal: { label: `Enter ${l.displayName}`, targetId: `${meta.id}/${l.placeId}` },

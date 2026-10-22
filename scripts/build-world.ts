@@ -38,6 +38,8 @@ export interface Dressing {
   vegetation?: { density?: number; palette?: VegPalette; flowers?: string }
   weather?: WeatherBias
   aura?: Aura
+  /** where the overworld Enter arch stands, from the landmark (default [6, 8]); for places with a placeId */
+  portal?: [number, number]
   props?: Prop[]
 }
 
