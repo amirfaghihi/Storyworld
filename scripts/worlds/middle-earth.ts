@@ -47,7 +47,7 @@ export const middleEarth: WorldBuildConfig = {
     { id: 'bree', displayName: 'Bree', type: 'village', svg: D(653, 361), placeId: 'bree' },
     { id: 'weathertop', displayName: 'Weathertop', type: 'ruin', svg: D(790, 345) },
     { id: 'trollshaws', displayName: 'Trollshaws', type: 'forest', svg: D(905, 330) },
-    { id: 'rivendell', displayName: 'Rivendell', type: 'city', svg: D(1000, 363) },
+    { id: 'rivendell', displayName: 'Rivendell', type: 'city', svg: D(1000, 363), placeId: 'rivendell' },
     { id: 'high-pass', displayName: 'The High Pass', type: 'mountain', svg: D(1060, 355) },
     { id: 'annuminas', displayName: 'Annúminas', type: 'ruin', svg: D(505, 290) },
     { id: 'carrock', displayName: 'The Carrock', type: 'other', svg: D(1140, 330) },

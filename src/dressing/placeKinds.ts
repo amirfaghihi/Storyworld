@@ -45,6 +45,8 @@ import {
 import { FILE_KINDS } from './kinds'
 import { GREAT_HALL_FOOTPRINT, greatHallFrame } from './kinds/greatHall'
 import { LONGHOUSE_FOOTPRINT, longhouseFrame } from './kinds/longhouse'
+import { WING_FOOTPRINT, wingFrame } from './kinds/wing'
+import { COLONNADE_FOOTPRINT } from './kinds/colonnade'
 import { STEP_STONE, toLocal, column, rail, stepDeck, doorSteps, stairPlan, stairTreads, laid } from './placeUtil'
 
 type Builder = (c: PropContext, out: Part[]) => void
@@ -70,6 +72,8 @@ export const PLACE_FOOTPRINT = {
   well: { width: 2.2, length: 2.2 },
   greatHall: GREAT_HALL_FOOTPRINT,
   longhouse: LONGHOUSE_FOOTPRINT,
+  wing: WING_FOOTPRINT,
+  colonnade: COLONNADE_FOOTPRINT,
 } as const
 
 
@@ -185,7 +189,8 @@ function millFrame(c: PropContext) {
  * World position of the top of a piece's chimney, from the same floor and footprint the builder
  * uses, so chimney smoke starts where the chimney is drawn. Null for kinds without one (and for
  * cottages built with `chimney: false`). A great hall smokes from the roof of its first louvre and
- * a longhouse from the vent on its ridge (none for a hall without louvres or a house without one).
+ * a longhouse from the vent on its ridge, a wing from the louvre on its ridge (none for a hall
+ * without louvres or a house or wing without one).
  */
 export function chimneyTop(kind: string, c: PropContext): [number, number, number] | null {
   let f: { chx: number; chz: number; chimneyTop: number }
@@ -202,6 +207,10 @@ export function chimneyTop(kind: string, c: PropContext): [number, number, numbe
     const h = longhouseFrame(c)
     if (h.chimneyTop === null) return null
     f = { chx: h.chx, chz: h.chz, chimneyTop: h.chimneyTop }
+  } else if (kind === 'wing') {
+    const g = wingFrame(c)
+    if (g.chimneyTop === null) return null
+    f = { chx: g.chx, chz: g.chz, chimneyTop: g.chimneyTop }
   } else return null
   const [x, z] = at(c, f.chx, f.chz)
   return [x, f.chimneyTop, z]

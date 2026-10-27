@@ -394,9 +394,26 @@ export const KINDS: Record<string, Builder> = {
 
   lamp(c, out) {
     const y = c.ground(c.x, c.z)
-    out.push(post(0.08, 0.1, footMinDisc(c, 0, 0, 0.1) - 0.1, y + 3.6, 5, '#4a4a50', c.x, c.z))
-    out.push({ geo: sphere(0.32, 8, 6), color: c.color ?? '#ffe0a0', position: [c.x, y + 3.8, c.z], unlit: true })
-    solidCircle(c, 0, 0, 0.12, 3.6)
+    // `height` is the post's top (default 3.6); every height below is the default's plus `rise`,
+    // so a default lamp is built from exactly the numbers it always was
+    const H = P(c, 'height', 3.6)
+    const rise = H - 3.6
+    const postColor = S(c, 'post', '#4a4a50')
+    const light = c.color ?? '#ffe0a0'
+    out.push(post(0.08, 0.1, footMinDisc(c, 0, 0, 0.1) - 0.1, y + 3.6 + rise, 5, postColor, c.x, c.z))
+    if (S(c, 'style', 'post') === 'hang') {
+      // a 0.7 m arm off the post's top toward local +x; a smaller globe hangs 0.45 m below its
+      // end on a 0.4 m chain
+      const armY = y + 3.6 + rise - 0.03
+      const [ax, az] = at(c, 0.35, 0)
+      out.push({ geo: box(0.7, 0.06, 0.06), color: postColor, position: [ax, armY, az], rotation: [0, c.rot, 0] })
+      const [hx, hz] = at(c, 0.66, 0)
+      out.push({ geo: box(0.025, 0.4, 0.025), color: '#4a4a50', position: [hx, armY - 0.2, hz], rotation: [0, c.rot, 0] })
+      out.push({ geo: sphere(0.24, 8, 6), color: light, position: [hx, armY - 0.45, hz], unlit: true })
+    } else {
+      out.push({ geo: sphere(0.32, 8, 6), color: light, position: [c.x, y + 3.8 + rise, c.z], unlit: true })
+    }
+    solidCircle(c, 0, 0, 0.12, 3.6 + rise)
   },
 
   stoneRing(c, out) {
@@ -643,34 +660,53 @@ export const KINDS: Record<string, Builder> = {
 
   bridge(c, out) {
     const L = P(c, 'length', PROP_FOOTPRINT.bridge.length)
-    const W = PROP_FOOTPRINT.bridge.width
+    // a bridge that names its width is a new-style one: its ends sit flush with the bank
+    const sized = typeof c.params.width === 'number'
+    const W = P(c, 'width', PROP_FOOTPRINT.bridge.width)
     const ruined = B(c, 'ruined')
     const flat = B(c, 'flat')
+    const parapets = B(c, 'parapets', !flat)
+    // with no parapet, an optional low stone kerb (its height) along both deck edges
+    const kerb = parapets ? 0 : Math.max(0, P(c, 'kerb', 0))
     const arcK = P(c, 'arc', 0.18) // hump height as a fraction of length
     const arcH = flat ? 0 : L * arcK
     const color = S(c, 'color', c.color ?? '#8f8d86')
     const n = Math.max(4, Math.ceil(L / (arcK < 0.12 ? 1.2 : 2.5)))
-    // The walking surface meets the bank flush at each end (0.15 m up, an easy step) and the deck
-    // boxes hang from it, so what is drawn and what is walked on are the same line.
+    // The walking surface meets the bank at each end and the deck boxes hang from it, so what is
+    // drawn and what is walked on are the same line. Old bridges start 0.15 m up (an easy step);
+    // sized ones start 0.02 m up, flush, so the walker never leaves the ground getting on.
+    const lift = sized ? 0.02 : 0.15
     const [ax, az] = at(c, -L / 2, 0)
     const [bx, bz] = at(c, L / 2, 0)
-    const topA = Math.max(c.ground(ax, az), c.seaLevel) + 0.15
-    const topB = Math.max(c.ground(bx, bz), c.seaLevel) + 0.15
+    const topA = Math.max(c.ground(ax, az), c.seaLevel) + lift
+    const topB = Math.max(c.ground(bx, bz), c.seaLevel) + lift
+    const deckLine = (t: number) => topA + (topB - topA) * t + Math.sin(t * Math.PI) * arcH
+    // the kerbs' centre lines, 0.1 m in from the deck's edges
+    const kerbZ = W / 2 - 0.1
     if (c.colliders && !ruined) {
-      c.colliders.push({ kind: 'deck', x: c.x, z: c.z, hw: L / 2, hd: 1.5, rot: c.rot, yA: topA, yB: topB, arc: arcH })
+      c.colliders.push({ kind: 'deck', x: c.x, z: c.z, hw: L / 2, hd: kerbZ, rot: c.rot, yA: topA, yB: topB, arc: arcH })
       // parapets block from below the lower end to above the hump, so they hold on the deck as
       // well as from the banks
-      if (!flat) {
+      if (parapets) {
         const band = { top: Math.max(topA, topB) + arcH + 1.2, bottom: Math.min(topA, topB) - 0.6 }
-        solidBox(c, 0, 1.75, L / 2, 0.15, 0, c.rot, band)
-        solidBox(c, 0, -1.75, L / 2, 0.15, 0, c.rot, band)
+        solidBox(c, 0, W / 2 + 0.15, L / 2, 0.15, 0, c.rot, band)
+        solidBox(c, 0, -(W / 2 + 0.15), L / 2, 0.15, 0, c.rot, band)
+      }
+      // a kerb box per deck segment and side: its top is above her feet on the deck, so it holds,
+      // and its bottom is above her head under the bridge, so it does not
+      if (kerb > 0) {
+        for (let i = 0; i < n; i++) {
+          const t = (i + 0.5) / n
+          const line = deckLine(t)
+          for (const side of [-1, 1]) solidBox(c, -L / 2 + t * L, side * kerbZ, L / n / 2 + 0.05, 0.1, 0, c.rot, { top: line + kerb, bottom: line - 0.6 })
+        }
       }
     }
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n
       if (ruined && Math.abs(t - 0.5) < 0.2) continue
       const [x, z] = at(c, -L / 2 + t * L, 0)
-      const line = topA + (topB - topA) * t + Math.sin(t * Math.PI) * arcH
+      const line = deckLine(t)
       // each box lies along the deck line there: the rise from end to end plus the hump's slope,
       // and its centre far enough below the line that its tilted top face is the line (0.3 m
       // square to the face is more than 0.3 m straight down). It is long enough along that slope
@@ -681,15 +717,23 @@ export const KINDS: Record<string, Builder> = {
       const y = line - 0.3 * Math.hypot(1, grade)
       out.push({ geo: box(seg, 0.6, W), color, position: [x, y, z], rotation: [0, c.rot, tilt] })
       if (!flat && arcK < 0.12 && i % 3 === 1 && Math.abs(t - 0.5) > 0.15) {
-        // piers down to the water
+        // piers down to the water, 0.1 m proud of the deck either side (to the millimetre, so the
+        // default 3.2 m deck keeps its 3.4 m piers exactly)
         const gy = Math.max(c.ground(x, z), c.seaLevel - 0.6)
-        out.push({ geo: box(1.6, Math.max(0.5, y - gy), 3.4), color, position: [x, (y + gy) / 2, z], rotation: [0, c.rot, 0] })
+        out.push({ geo: box(1.6, Math.max(0.5, y - gy), Math.round((W + 0.2) * 1000) / 1000), color, position: [x, (y + gy) / 2, z], rotation: [0, c.rot, 0] })
       }
       if (flat && i % 2 === 0) out.push({ geo: cyl(0.2, 0.2, Math.max(1, y - c.seaLevel + 1), 5), color: '#5a4a3a', position: [x, y - Math.max(1, y - c.seaLevel + 1) / 2, z] })
-      if (!flat) {
+      if (parapets) {
         for (const side of [-1, 1]) {
-          const [px, pz] = at(c, -L / 2 + t * L, side * 1.6)
+          const [px, pz] = at(c, -L / 2 + t * L, side * (W / 2))
           out.push({ geo: box(seg, 0.5, 0.3), color, position: [px, line + 0.2, pz], rotation: [0, c.rot, tilt] })
+        }
+      } else if (kerb > 0) {
+        // the kerb: a 0.2 m stone strip from 0.1 m into the deck to `kerb` above it, along the
+        // same tilted segment as the deck box under it
+        for (const side of [-1, 1]) {
+          const [kx, kz] = at(c, -L / 2 + t * L, side * kerbZ)
+          out.push({ geo: box(seg, kerb + 0.1, 0.2), color, position: [kx, line + (kerb - 0.1) / 2, kz], rotation: [0, c.rot, tilt] })
         }
       }
     }

@@ -9,7 +9,62 @@ const target = new THREE.Vector3()
 const lookAt = new THREE.Vector3()
 const desired = new THREE.Vector3()
 const probe = new THREE.Vector3()
+const craned = new THREE.Vector3()
 const ARM_STEPS = 14
+/** ...and at least one probe per this many metres, so a long arm cannot step over a thin wall */
+const ARM_PROBE = 0.5
+const armSteps = (distance: number) => Math.max(ARM_STEPS, Math.ceil(distance / ARM_PROBE))
+/** the most the arm may be lifted over rolling ground before it cranes or pulls in (metres) */
+const MAX_LIFT = 6
+/** the crane raises the arm's pitch in these steps (radians), up to CRANE_TOP */
+const CRANE_STEP = 0.05
+const CRANE_TOP = 1.4
+const feet = new THREE.Vector3()
+
+/**
+ * The crane (places with `cameraCrane`): when the ground behind the traveller is too high to lift
+ * the arm over, try a steeper arm at full length before pulling in. Takes the first pitch above
+ * `pitch` whose line of sight meets no solid and needs a lift of MAX_LIFT or less, and from which
+ * her feet are in sight too (otherwise a bench above hides all but her hood), writes that camera
+ * position to `out` and returns true; false when none clears.
+ */
+function crane(hf: { sampleHeight(x: number, z: number): number }, yaw: number, pitch: number, distance: number, out: THREE.Vector3): boolean {
+  for (let s = 1; pitch + s * CRANE_STEP <= CRANE_TOP + 1e-9; s++) {
+    const p = pitch + s * CRANE_STEP
+    const cp = Math.cos(p)
+    craned.set(target.x + Math.sin(yaw) * cp * distance, target.y + Math.sin(p) * distance, target.z + Math.cos(yaw) * cp * distance)
+    let lift = 0
+    let blocked = false
+    const n = armSteps(distance)
+    for (let i = 1; i <= n; i++) {
+      const t = i / n
+      probe.lerpVectors(target, craned, t)
+      if (colliderCount() > 0 && pointInSolid(probe.x, probe.y, probe.z)) {
+        blocked = true
+        break
+      }
+      const need = hf.sampleHeight(probe.x, probe.z) + 0.9 - probe.y
+      if (need > 0) lift = Math.max(lift, need / t)
+    }
+    if (blocked || lift > MAX_LIFT) continue
+    craned.y += lift
+    // the feet must show as well as the shoulders
+    feet.set(target.x, target.y - 1.6, target.z)
+    let seen = true
+    for (let i = 1; i < n; i++) {
+      probe.lerpVectors(feet, craned, i / n)
+      if (hf.sampleHeight(probe.x, probe.z) + 0.2 > probe.y) {
+        seen = false
+        break
+      }
+    }
+    if (seen) {
+      out.copy(craned)
+      return true
+    }
+  }
+  return false
+}
 
 /** Third-person orbit camera. Clamped above the terrain and water instead of using collision. */
 export function FollowCamera() {
@@ -43,13 +98,15 @@ export function FollowCamera() {
     )
     // spring arm: when a hill lies between camera and traveller, first try lifting the camera
     // over it (rolling country); when that needs too much, or a building is in the way, pull in.
+    // A place with cameraCrane first tries raising the arm's pitch before it pulls in.
     let lift = 0
     let tMax = 1
-    for (let i = 1; i <= ARM_STEPS; i++) {
-      const t = i / ARM_STEPS
+    const n = armSteps(distance)
+    for (let i = 1; i <= n; i++) {
+      const t = i / n
       probe.lerpVectors(target, desired, t)
       if (colliderCount() > 0 && pointInSolid(probe.x, probe.y, probe.z)) {
-        tMax = Math.max(0.12, (i - 1) / ARM_STEPS)
+        tMax = Math.max(0.12, (i - 1) / n)
         break
       }
       const need = hf.sampleHeight(probe.x, probe.z) + 0.9 - probe.y
@@ -57,15 +114,17 @@ export function FollowCamera() {
     }
     if (tMax < 1) desired.lerpVectors(target, desired, tMax)
     else if (lift > 0) {
-      if (lift <= 6) desired.y += lift
-      else {
+      if (lift <= MAX_LIFT) desired.y += lift
+      else if (meta.cameraCrane && crane(hf, yaw, pitch, distance, desired)) {
+        // craned up over the cliff at full length; the look-at point stays on the traveller
+      } else {
         // too steep to look over: shorten the arm until the line of sight clears
-        for (let i = ARM_STEPS - 1; i >= 2; i--) {
-          const t = i / ARM_STEPS
+        for (let i = n - 1; i >= 2; i--) {
+          const t = i / n
           probe.lerpVectors(target, desired, t)
           let clear = true
           for (let k = 1; k <= i; k++) {
-            const tk = k / ARM_STEPS
+            const tk = k / n
             const px = target.x + (desired.x - target.x) * tk
             const pz = target.z + (desired.z - target.z) * tk
             const py = target.y + (probe.y - target.y) * (k / i)

@@ -58,6 +58,8 @@ const ROCK_BAND = 75
 
 /** How far past 0.55 r (in cells) a flat stays fully level; see the flats pass for why a quarter. */
 const CORE_MARGIN = 0.25
+/** side of the squares the flats are bucketed into (metres) */
+const FLAT_TILE = 32
 
 export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWorld {
   const [W, H] = def.size
@@ -90,6 +92,18 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
   // result; past a lane's box the lane cannot paint road.
   const riverBox = def.rivers.map((r) => lineBox(r.points, Math.max(r.valley?.width ?? 0, r.width / 2 + Math.max(r.bank ?? 7, 2.6)) + r.width * 0.18 + 1))
   const laneBox = def.lanes.map((l) => lineBox(l.points, l.width / 2 + 1))
+  // Flats per FLAT_TILE square: each tile lists, in the def's order, the flats whose outer circle
+  // (r + CORE_MARGIN cells) touches it, so the flats pass below visits only those. The order is
+  // kept, so "the later core wins" and the rim blend come out exactly as from the full list.
+  const tilesX = Math.floor(W / FLAT_TILE) + 1
+  const tilesZ = Math.floor(H / FLAT_TILE) + 1
+  const flatTiles: number[][] = Array.from({ length: tilesX * tilesZ }, () => [])
+  def.flats.forEach((f, i) => {
+    const o = f.r + cell * CORE_MARGIN
+    const tx0 = Math.max(0, Math.floor((f.x - o) / FLAT_TILE)), tx1 = Math.min(tilesX - 1, Math.floor((f.x + o) / FLAT_TILE))
+    const tz0 = Math.max(0, Math.floor((f.z - o) / FLAT_TILE)), tz1 = Math.min(tilesZ - 1, Math.floor((f.z + o) / FLAT_TILE))
+    for (let tz = tz0; tz <= tz1; tz++) for (let tx = tx0; tx <= tx1; tx++) flatTiles[tz * tilesX + tx].push(i)
+  })
   for (let iz = 0; iz < height; iz++) {
     for (let ix = 0; ix < width; ix++) {
       const x = ix * cell
@@ -152,7 +166,9 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
       let keep = 1
       let pull = 0
       let pulled = 0
-      for (let i = 0; i < def.flats.length; i++) {
+      const tileFlats = flatTiles[Math.min(tilesZ - 1, Math.floor(z / FLAT_TILE)) * tilesX + Math.min(tilesX - 1, Math.floor(x / FLAT_TILE))]
+      for (let j = 0; j < tileFlats.length; j++) {
+        const i = tileFlats[j]
         const f = def.flats[i]
         const d = Math.hypot(x - f.x, z - f.z)
         const outer = f.r + cell * CORE_MARGIN
@@ -254,6 +270,7 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
     speedScale: def.speedScale ?? 0.8,
     spawnYaw: def.spawnYaw,
     spawnPitch: def.spawnPitch,
+    cameraCrane: def.cameraCrane,
     // the map frames the village, not the wooded rim that closes the horizon
     mapBounds: def.rim ? ([def.rim.width * 0.55, def.rim.width * 0.55, W - def.rim.width * 0.55, H - def.rim.width * 0.55] as [number, number, number, number]) : undefined,
     place: {
@@ -293,6 +310,27 @@ export function buildPlace(def: PlaceDef, returnTo: [number, number]): LoadedWor
         ground: undefined,
         vegetation: undefined,
         props: def.props.map(({ at, ...p }) => ({ kind: p.kind ?? 'stones', ...p, offset: at })),
+      },
+    })
+  }
+  // the air of the whole place: a hidden landmark at the centre whose dressing reaches every corner
+  // (aura is full within 0.35 x 1.25 of the radius, weather within 1.8 of it; see auras.ts, weather.ts)
+  if (def.air) {
+    metaInput.landmarks.push({
+      id: `${def.id}-air`,
+      displayName: def.name,
+      type: 'other',
+      position: [W / 2, H / 2],
+      discoverRadius: 0,
+      hidden: true,
+      dressing: {
+        radius: Math.ceil(Math.hypot(W, H) / 2 / 0.4375),
+        setting: '',
+        ground: undefined,
+        vegetation: undefined,
+        props: [],
+        aura: def.air.aura,
+        weather: def.air.weather,
       },
     })
   }

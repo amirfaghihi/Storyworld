@@ -7,6 +7,7 @@ const REGISTRY: Record<string, () => Promise<{ def: PlaceDef }>> = {
   hobbiton: () => import('./defs/hobbiton'),
   bree: () => import('./defs/bree'),
   edoras: () => import('./defs/edoras'),
+  rivendell: () => import('./defs/rivendell'),
 }
 
 export async function loadPlace(worldId: string, placeId: string): Promise<LoadedWorld> {

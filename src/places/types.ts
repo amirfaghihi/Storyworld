@@ -105,6 +105,13 @@ export interface PlaceDef {
   regions: Region[]
   /** free-standing props not tied to a spot (fences, carts, trees...) */
   props?: (Partial<Prop> & { at: [number, number] })[]
+  /** the air of the whole place: an AURAS key and a LOCAL_WEATHER key, applied everywhere on the map */
+  air?: { aura?: string; weather?: string }
+  /**
+   * When a cliff behind the traveller would pull the follow camera in, first raise the arm's pitch
+   * (a crane) and keep its length. For places built on steep benches; off by default.
+   */
+  cameraCrane?: boolean
 }
 
 export type { Landmark }

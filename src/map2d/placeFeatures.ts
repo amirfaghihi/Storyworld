@@ -3,6 +3,8 @@ import { PLACE_FOOTPRINT } from '@/dressing/placeKinds'
 import { greatHallFrame } from '@/dressing/kinds/greatHall'
 import { longhouseFrame } from '@/dressing/kinds/longhouse'
 import { stairFrame } from '@/dressing/kinds/stair'
+import { wingFrame } from '@/dressing/kinds/wing'
+import { colonnadeFrame } from '@/dressing/kinds/colonnade'
 import { PROP_FOOTPRINT } from '@/dressing/propKinds'
 import { B, P, S, at, makePropContext, type PropContext } from '@/dressing/propUtil'
 import { hash2 } from '@/terrain/faceColors'
@@ -14,7 +16,8 @@ import { hash2 } from '@/terrain/faceColors'
  *
  * Nothing here is built: each piece's outline comes from the builders' own size tables
  * (PLACE_FOOTPRINT, PROP_FOOTPRINT) and params, or from the frame functions the kinds in their
- * own files share with their builders (greatHallFrame, longhouseFrame, stairFrame), placed with the
+ * own files share with their builders (greatHallFrame, longhouseFrame, stairFrame, wingFrame,
+ * colonnadeFrame), placed with the
  * context and transform the builders use (propUtil.makePropContext and at), so the plan cannot
  * drift from the 3D pieces.
  * A building's footprint is its footing, the same rect its collider uses (the walls plus the
@@ -43,7 +46,7 @@ export interface FeatureRing {
 }
 
 export interface PlaceFeatures {
-  /** cottages, the inn, mills, halls, longhouses, towers: footing outline and the roof ridge along it (none for a round tower) */
+  /** cottages, the inn, mills, halls, longhouses, wings, porches, towers: footing outline and the roof ridge along it (none for a round tower, a porch or an enterable hall) */
   buildings: (FeatureRing & { ridge: Float32Array; inn: boolean })[]
   /** hobbit-holes: the facade dug into the hill, the round door, and the turf brow behind */
   smials: (FeatureRing & { door: [number, number]; doorColor: string; brow: Float32Array })[]
@@ -101,6 +104,8 @@ export const PLAN_KINDS: ReadonlySet<string> = new Set([
   'greatHall',
   'longhouse',
   'stair',
+  'wing',
+  'colonnade',
 ])
 
 function boxOf(pts: ArrayLike<number>, pad = 0): Box {
@@ -263,6 +268,19 @@ function addProp(f: PlaceFeatures, kind: string, c: PropContext, of: string) {
       building(h.w / 2 + 0.15, h.L / 2 + 0.15, h.L / 2)
       return
     }
+    case 'wing': {
+      // the body box (closed) or the roof box (enterable, whose thin walls are under the map's
+      // 1.2 m rule), with the hip's real ridge; none drawn for an enterable wing (wingFrame.map)
+      const g = wingFrame(c).map
+      building(g.hw, g.hd, g.ridge > 0 ? g.ridge : null)
+      return
+    }
+    case 'colonnade': {
+      // the lean-to roof box over the porch (the roof collider's half extents), no ridge
+      const g = colonnadeFrame(c)
+      building(g.hw, g.hd, null)
+      return
+    }
     case 'stair': {
       // the treads and the cheeks either side, from the foot (local z 0) up to the head (-run),
       // drawn as stone like a quay
@@ -394,18 +412,21 @@ function addProp(f: PlaceFeatures, kind: string, c: PropContext, of: string) {
     }
     case 'bridge': {
       const L = P(c, 'length', PROP_FOOTPRINT.bridge.length)
-      const W = PROP_FOOTPRINT.bridge.width
+      const W = P(c, 'width', PROP_FOOTPRINT.bridge.width)
       const arcK = P(c, 'arc', 0.18)
       const ruined = B(c, 'ruined')
+      const parapets = B(c, 'parapets', !B(c, 'flat'))
+      const kerb = parapets ? 0 : Math.max(0, P(c, 'kerb', 0))
+      // parapets stand at the deck's edge (W/2; their colliders 0.15 m further out); a kerb's
+      // centre line is 0.1 m in; a flat plank bridge, or one with neither, has no sides
+      const sideZ = parapets ? W / 2 : kerb > 0 ? W / 2 - 0.1 : 0
       // the deck in the builder's pieces; a ruined bridge has lost the middle 40% of them
       const n = Math.max(4, Math.ceil(L / (arcK < 0.12 ? 1.2 : 2.5)))
       for (const [i0, i1] of stretches(n, (i) => !(ruined && Math.abs((i + 0.5) / n - 0.5) < 0.2))) {
         const x0 = -L / 2 + (i0 / n) * L
         const x1 = -L / 2 + ((i1 + 1) / n) * L
         const ring = rect(c, (x1 - x0) / 2, W / 2, (x0 + x1) / 2, 0)
-        // the parapets stand 1.6 m either side of the centre line, at the deck's edge (their
-        // colliders sit 0.15 m further out, at 1.75)
-        const sides = B(c, 'flat') ? new Float32Array(0) : Float32Array.from([...run(c, x0, x1, -1.6), ...run(c, x0, x1, 1.6)])
+        const sides = sideZ ? Float32Array.from([...run(c, x0, x1, -sideZ), ...run(c, x0, x1, sideZ)]) : new Float32Array(0)
         f.bridges.push({ ring, box: boxOf(ring, 0.5), sides, of })
       }
       return

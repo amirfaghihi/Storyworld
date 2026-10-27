@@ -13,6 +13,9 @@ import { onTerrainEdit } from '@/editor/terrainEdit'
 import { getMoodMap, moodAt } from '@/vegetation/mood'
 import { makePropContext } from '@/dressing/propUtil'
 import { channelFootprint } from '@/dressing/kinds/channel'
+import { waterfallPoolFootprint } from '@/dressing/kinds/waterfall'
+import { wingFloorFootprint } from '@/dressing/kinds/wing'
+import { colonnadeFloorFootprint } from '@/dressing/kinds/colonnade'
 
 const CELL = 1.0 // metres between tufts
 const BLADE_FOOT = 0.13 // half width of a blade's base, before instance scale (tuftGeometry's w)
@@ -80,23 +83,34 @@ export function Grass() {
   const noise = useMemo(() => terrainNoise(meta.seed), [meta.seed])
   const overrides = useMemo(() => groundOverrides(meta), [meta])
   const tuftScale = meta.place ? 0.62 : 1 // 1:1 places: finer grass at eye level
-  // no tufts through a stream's channel, whose water is drawn only a hand's breadth above the ground
+  // no tufts through a stream's channel, whose water is drawn only a hand's breadth above the
+  // ground, nor through a waterfall's plunge pool (a disc 4 cm over it)
   const bare = useMemo(() => {
     const rects: { x: number; z: number; hw: number; hd: number; cs: number; sn: number; r: number }[] = []
+    const discs: { x: number; z: number; r: number }[] = []
     for (const lm of meta.landmarks)
       for (const [i, p] of (lm.dressing?.props ?? []).entries()) {
-        if (p.kind !== 'channel') continue
-        const f = channelFootprint(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
-        rects.push({ ...f, cs: Math.cos(f.rot), sn: Math.sin(f.rot), r: Math.hypot(f.hw, f.hd) })
+        if (p.kind === 'channel') {
+          const f = channelFootprint(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+          rects.push({ ...f, cs: Math.cos(f.rot), sn: Math.sin(f.rot), r: Math.hypot(f.hw, f.hd) })
+        } else if (p.kind === 'waterfall') {
+          const f = waterfallPoolFootprint(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+          if (f.r > 0) discs.push(f)
+        } else if (p.kind === 'wing' || p.kind === 'colonnade') {
+          // the floors of buildings you can walk into (Hall of Fire, the east porch)
+          const ctx = makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i)
+          const f = p.kind === 'wing' ? wingFloorFootprint(ctx) : colonnadeFloorFootprint(ctx)
+          if (f) rects.push({ ...f, cs: Math.cos(f.rot), sn: Math.sin(f.rot), r: Math.hypot(f.hw, f.hd) })
+        }
       }
-    return rects
+    return { rects, discs }
   }, [meta, surface])
   const onBare = (x: number, z: number) =>
-    bare.some((b) => {
+    bare.rects.some((b) => {
       const dx = x - b.x, dz = z - b.z
       if (Math.abs(dx) > b.r || Math.abs(dz) > b.r) return false
       return Math.abs(b.cs * dx - b.sn * dz) < b.hw && Math.abs(b.sn * dx + b.cs * dz) < b.hd
-    })
+    }) || bare.discs.some((b) => (x - b.x) ** 2 + (z - b.z) ** 2 < b.r * b.r)
   // absolute grid cell of each instance
   const cells = useRef(new Int32Array(total * 2).fill(0x7fffffff))
 

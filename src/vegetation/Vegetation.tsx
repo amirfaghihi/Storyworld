@@ -7,6 +7,8 @@ import { useSettingsStore, byQuality, atLeast } from '@/store/stores'
 import { getGradientMap } from '@/render/gradientMap'
 import { scatter, type Instance, type ScatterResult } from './scatter'
 import { extractPlaceFeatures } from '@/map2d/placeFeatures'
+import { makePropContext } from '@/dressing/propUtil'
+import { waterfallPoolFootprint } from '@/dressing/kinds/waterfall'
 import { vegOverrides } from '@/dressing/ground'
 import { applyExtensions } from '@/render/shaderExt'
 import { timeState } from '@/render/timeOfDay'
@@ -300,13 +302,15 @@ function Glowing({ geometry, items, palette }: { geometry: THREE.BufferGeometry;
 const BUILDING_CLEAR = 0.8
 
 /**
- * Inside a place, drop whatever the scatter put inside a building or right against its walls: the
+ * Inside a place, drop whatever the scatter put inside a building, right against its walls or in a
+ * waterfall's pool: the
  * scatter knows only the ground, so it once grew a pine inside Meduseld. The footings come from
  * the town plan the map draws, which matches every building's collider.
  */
-function clearOfBuildings(r: ScatterResult, rings: Float32Array[]): ScatterResult {
-  if (!rings.length) return r
+function clearOfBuildings(r: ScatterResult, rings: Float32Array[], pools: { x: number; z: number; r: number }[] = []): ScatterResult {
+  if (!rings.length && !pools.length) return r
   const inside = (x: number, z: number) => {
+    for (const p of pools) if ((x - p.x) ** 2 + (z - p.z) ** 2 < p.r * p.r) return true
     for (const q of rings) {
       let inPoly = false
       let near = Infinity
@@ -336,7 +340,16 @@ export function Vegetation() {
   const items = useMemo(() => {
     const t0 = performance.now()
     const all = scatter(heightfield, surface, meta.seaLevel, density, vegOverrides(meta), meta)
-    const r = meta.place ? clearOfBuildings(all, extractPlaceFeatures(world).buildings.map((b) => b.ring)) : all
+    // ...and out of a waterfall's pool, with a margin for the trunk and its roots
+    const pools: { x: number; z: number; r: number }[] = []
+    if (meta.place)
+      for (const lm of meta.landmarks)
+        for (const [i, p] of (lm.dressing?.props ?? []).entries())
+          if (p.kind === 'waterfall') {
+            const f = waterfallPoolFootprint(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+            if (f.r > 0) pools.push({ x: f.x, z: f.z, r: f.r + 1.5 })
+          }
+    const r = meta.place ? clearOfBuildings(all, extractPlaceFeatures(world).buildings.map((b) => b.ring), pools) : all
     if (import.meta.env.DEV)
       console.info(
         `vegetation: pine ${r.pine.length}, fir ${r.fir.length}, round ${r.round.length}, oak ${r.oak.length}, birch ${r.birch.length}, mallorn ${r.mallorn.length}, glowcap ${r.glowcap.length}, crag ${r.crag.length}, dead ${r.dead.length}, rock ${r.rock.length}, bush ${r.bush.length}, flower ${r.flower.length}, fern ${r.fern.length}, log ${r.log.length}, mushroom ${r.mushroom.length} in ${(performance.now() - t0).toFixed(0)} ms`,

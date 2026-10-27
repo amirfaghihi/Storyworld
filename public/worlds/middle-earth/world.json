@@ -641,11 +641,16 @@
         228
       ],
       "discoverRadius": 28,
+      "placeId": "rivendell",
       "dressing": {
         "radius": 55,
+        "portal": [
+          -6,
+          10
+        ],
         "aura": "silver",
         "weather": "fair",
-        "setting": "The Last Homely House sits in a deep, hidden valley cut by the Bruinen: terraces, pine-scented air, waterfalls on the cliffs, lamps among the trees and a narrow bridge over the river. Warm, safe and full of song.",
+        "setting": "The Last Homely House stands in a deep, hidden valley cut by the loud Bruinen: a steep zigzag path down from the moor, pine-scented air, the sound of falling water, lamps among the trees and a narrow bridge with no parapet.",
         "ground": {
           "kind": "lush",
           "blend": 0.6,
@@ -685,20 +690,6 @@
               "height": 5,
               "roofColor": "#6d8aa8",
               "arches": true
-            }
-          },
-          {
-            "kind": "tower",
-            "offset": [
-              12,
-              6
-            ],
-            "color": "#e8e2d2",
-            "params": {
-              "height": 14,
-              "radius": 1.6,
-              "roof": "cone",
-              "roofColor": "#6d8aa8"
             }
           },
           {

@@ -1,15 +1,16 @@
 // Regression check for the map's lettering (src/map2d/labels.ts) and place search (src/map2d/search.ts).
-// Runs the dialog's own layout code for Middle-earth, Bree, Hobbiton and Edoras at four window sizes and three
+// Runs the dialog's own layout code for Middle-earth, Bree, Hobbiton, Edoras and Rivendell at four window sizes and three
 // zooms, measuring text with node-canvas in the font the map uses, and asserts that:
 //   - no two names overlap, no name sits on a marker, a '+n' chip, a control or (in places) a building
 //     or smial footprint, nothing runs off the map, and no '+n' chip sits under another marker;
 //   - Middle-earth letters at least 30 places at fit in a 1400×900 window, and each place every spot
-//     (Edoras, whose town is too dense for that at fit, each spot by 2× with the view on it);
+//     (Edoras and Rivendell, whose towns are too dense for that at fit, each spot by 2× with the view on it);
 //   - the pairs that used to collide never do (Rhovanion/Mirkwood, Hobbiton/The Shire, Minas Tirith/
-//     Osgiliath/Minas Morgul, the Crossing of the Ways/the West Gate, the Prancing Pony/the Inn-yard);
+//     Osgiliath/Minas Morgul, the Crossing of the Ways/the West Gate, the Prancing Pony/the Inn-yard,
+//     and Rivendell's close neighbours: Elrond's hall/the Hall of Fire, the brink/the zigzag);
 //   - names keep their slots between zoom steps (no more than 10% move per 10% of zoom), and once
 //     the camera rests after zooming out to fit, as many are lettered as in a fresh layout;
-//   - search finds annuminas, barad dur, rhun and lake town first;
+//   - search finds annuminas, barad dur, rhun and lake town first, and a place's spots and way out;
 //   - the town plans the map draws agree with the 3D pieces: every building's box collider, as
 //     LandmarkProps registers it, lies inside that building's drawn footprint (within 0.3 m), and
 //     every footprint inside its collider (src/map2d/placeFeatures.ts).
@@ -25,6 +26,7 @@ import { buildPlace } from '../src/places/buildPlace.ts'
 import { def as bree } from '../src/places/defs/bree.ts'
 import { def as hobbiton } from '../src/places/defs/hobbiton.ts'
 import { def as edoras } from '../src/places/defs/edoras.ts'
+import { def as rivendell } from '../src/places/defs/rivendell.ts'
 import { markerModels, EXIT_ID, type MarkerModel } from '../src/map2d/markers.ts'
 import { layoutMapFrame, regionAnchors, discHitsBox, countChipBox, MAJOR_PRIORITY, type LabelLayout, type MapFrame, type RegionAnchors } from '../src/map2d/labels.ts'
 import { overlaps, type AABB } from '../src/map2d/geom/spatialHash.ts'
@@ -230,7 +232,7 @@ function verify(tag: string, frame: MapFrame, drawn: Drawn[], sc: Screen, footpr
 }
 
 // ---- run
-const worlds = [overworld('middle-earth'), place('bree', bree), place('hobbiton', hobbiton), place('edoras', edoras)]
+const worlds = [overworld('middle-earth'), place('bree', bree), place('hobbiton', hobbiton), place('edoras', edoras), place('rivendell', rivendell)]
 const SCREENS: [number, number][] = [
   [1400, 900],
   [1920, 1080],
@@ -244,8 +246,10 @@ const ZOOMS = [1, 2, 4]
  * (1.41 px/m at fit) and the four spots on the hall's platform stand 12-20 m apart, closer than one
  * 22 px badge (15.6 m), so at fit they merge into one marker by design; the paved way and the
  * spring stand among the terrace rows, whose footprints leave their names no room before 1.5-2×.
+ * Rivendell's house stands close on its shelf: at fit the Last Homely House and the Hall of Fire
+ * have no room between the wings' footprints and their neighbours' names, and letter by 2×.
  */
-const LETTERED_BY: Record<string, number> = { edoras: 2 }
+const LETTERED_BY: Record<string, number> = { edoras: 2, rivendell: 2 }
 const PAIRS: Record<string, [string, string][]> = {
   'middle-earth': [
     ['rhovanion', 'mirkwood'],
@@ -260,6 +264,11 @@ const PAIRS: Record<string, [string, string][]> = {
   ],
   hobbiton: [],
   edoras: [],
+  rivendell: [
+    ['elronds-hall', 'hall-of-fire'],
+    ['valley-brink', 'zigzag-path'],
+    ['east-porch', 'terraces'],
+  ],
 }
 
 for (const w of worlds) {
@@ -427,6 +436,21 @@ console.log('\nsearch:')
     const got = searchPlaces(bi, q)[0]?.entry.id ?? ''
     if (got !== want) fail(`bree search '${q}' → '${got}' (want '${want}')`)
     else console.log(`  ok   bree '${q}' → ${got}`)
+  }
+  const r = worlds.find((w) => w.name === 'rivendell')!
+  const ri = buildSearchIndex([
+    ...r.meta.landmarks.filter((l) => !l.hidden).map((l) => ({ id: l.id, kind: 'landmark' as const, name: l.displayName, x: l.position[0], z: l.position[1], priority: basePriority(l.type, false) })),
+    { id: EXIT_ID, kind: 'exit' as const, name: r.meta.place!.exit.label, x: 0, z: 0, priority: 4 },
+  ])
+  for (const [q, want] of [
+    ['fire', 'hall-of-fire'],
+    ['porch', 'east-porch'],
+    ['bilbo', 'bilbos-room'],
+    ['out', EXIT_ID],
+  ] as const) {
+    const got = searchPlaces(ri, q)[0]?.entry.id ?? ''
+    if (got !== want) fail(`rivendell search '${q}' → '${got}' (want '${want}')`)
+    else console.log(`  ok   rivendell '${q}' → ${got}`)
   }
 }
 
@@ -605,12 +629,16 @@ console.log('\ntown plans:')
       prop('greatHall', [60, 30], 0.6, 1),
       prop('longhouse', [-60, 30], -0.4, 1, { door: 'side' }),
       prop('stair', [30, 60], 0.3, 1, { run: 6 }),
+      prop('wing', [-60, -30], 0.5, 1, { width: 10, length: 16, doors: '+x' }),
+      prop('wing', [-30, 60], -0.7, 1, { width: 12, length: 14, storeys: 1, storeyHeight: 6, enter: '-x', doors: '-x', windows: 0, louvres: 1 }),
+      prop('colonnade', [60, 60], 1.1, 1, { endWall: '+x' }),
+      prop('bridge', [-60, 60], -0.3, 1, { length: 12, width: 2, parapets: false, kerb: 0.2, arc: 0.065 }),
     ]
     const lm = { ...b.meta.landmarks[0], id: 'kinds', position: at(0, 0), dressing: { ...(b.meta.landmarks[0].dressing ?? { radius: 60, setting: 'village' }), props } }
     const world = { ...b, meta: { ...b.meta, landmarks: [lm] } } as LoadedWorld
     const plan = extractPlaceFeatures(world)
     checkPlan('every kind', world, plan)
-    const want = { buildings: 1 + 2 + 1 + 1 + 1 + 2 + 2 + 2, smials: 1, gates: 4, wheels: 3, bridges: 2, quays: 1 + 1 }
+    const want = { buildings: 1 + 2 + 1 + 1 + 1 + 2 + 2 + 2 + 2 + 1, smials: 1, gates: 4, wheels: 3, bridges: 2 + 1, quays: 1 + 1 }
     const got = { buildings: plan.buildings.length, smials: plan.smials.length, gates: plan.gates.length, wheels: plan.wheels.length, bridges: plan.bridges.length, quays: plan.quays.length }
     for (const k of Object.keys(want) as (keyof typeof want)[]) if (want[k] !== got[k]) fail(`every kind: ${got[k]} ${k} drawn, want ${want[k]}`)
     if (!plan.walls.length) fail('every kind: the wall ring and palisade drew no walls')
@@ -621,7 +649,7 @@ console.log('\ntown plans:')
   const FURNITURE = new Set([
     'bigTree', 'boat', 'cart', 'gardenPlot', 'haystack', 'lamp', 'partyTree', 'pony', 'signpost', 'standingStone', 'stones', 'tables',
     'stoneRing', 'barrow', 'ruins', 'troll', 'ship', 'cave', 'pool', 'crag', 'pits', 'eye', 'lavaGlow', 'smoke', 'seat', 'candles', 'webs', 'ent',
-    'channel', 'springBasin', 'banner', 'flowerPatch',
+    'channel', 'springBasin', 'banner', 'flowerPatch', 'hearth', 'waterfall',
   ])
   const unknown = new Set<string>()
   for (const w of worlds) for (const lm of w.world?.meta.landmarks ?? []) for (const p of lm.dressing?.props ?? []) if (!PLAN_KINDS.has(p.kind) && !FURNITURE.has(p.kind)) unknown.add(p.kind)

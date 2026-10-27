@@ -119,16 +119,18 @@ export const dressings: Record<string, Dressing> = {
   },
   rivendell: {
     radius: 55,
+    // the Enter arch on the level grass between the halls and the river (the default spot is on
+    // the foot of the mountains, its legs 5 m apart in height)
+    portal: [-6, 10],
     aura: 'silver',
     weather: 'fair',
     setting:
-      'The Last Homely House sits in a deep, hidden valley cut by the Bruinen: terraces, pine-scented air, waterfalls on the cliffs, lamps among the trees and a narrow bridge over the river. Warm, safe and full of song.',
+      'The Last Homely House stands in a deep, hidden valley cut by the loud Bruinen: a steep zigzag path down from the moor, pine-scented air, the sound of falling water, lamps among the trees and a narrow bridge with no parapet.',
     ground: { kind: 'lush', blend: 0.6, inner: 0.3 },
     vegetation: { density: 1.3 },
     props: [
       { kind: 'hall', offset: [0, -6], rotation: 0.2, color: '#e8e2d2', params: { width: 14, length: 22, height: 7, roofColor: '#6d8aa8', arches: true } },
       { kind: 'hall', offset: [-16, 2], rotation: 0.9, color: '#e0d9c8', params: { width: 8, length: 12, height: 5, roofColor: '#6d8aa8', arches: true } },
-      { kind: 'tower', offset: [12, 6], color: '#e8e2d2', params: { height: 14, radius: 1.6, roof: 'cone', roofColor: '#6d8aa8' } },
       { kind: 'bridge', offset: [-6, 18], rotation: 0.3, params: { length: 14 } },
       { kind: 'lamp', offset: [-6, -14] },
       { kind: 'lamp', offset: [8, -14] },

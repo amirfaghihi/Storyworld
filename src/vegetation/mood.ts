@@ -137,6 +137,46 @@ export const MOODS: Record<string, Mood> = {
     treeScale: 0.9,
     density: 0.7,
   },
+  // Rivendell's three. Appended, so the ids of the moods above (indices into the mood map) keep
+  // their values. None glows and none has pink blossom.
+  /** the singing woods: beech and oak in a soft green light, leaf litter underfoot */
+  beech: {
+    types: { round: 0.55, oak: 0.4, birch: 0.05 },
+    canopy: [['#5f9a4a', '#86bc5a'], ['#4f8a42', '#74ad52'], ['#7aa84a', '#a8c860'], ['#c9a43a', '#e2c45a'], ['#5f9a4a', '#86bc5a']],
+    trunk: [['#8a8478', '#a8a296'], ['#6b5a44', '#8a7658']], // pale grey beech boles, browner oak
+    floor: { mul: 0.95, tint: '#6a7a3a', amount: 0.25 },
+    flowers: 0.6,
+    mushrooms: 0.6,
+    glow: 0,
+    treeScale: 1.25,
+    density: 0.75,
+  },
+  /** a birch glade: white stems on a green sward */
+  birch: {
+    types: { birch: 0.75, round: 0.15, pine: 0.1 },
+    canopy: [['#a8c860', '#d0e07a'], ['#c9b44a', '#e6d470'], ['#8fbf5a', '#b8d878']],
+    conifer: [['#2f7a45', '#4a9c5c']],
+    trunk: [['#e8e6e0', '#f6f4ee']],
+    floor: { mul: 1.04, tint: '#8fbf62', amount: 0.2 },
+    flowers: 1.4,
+    mushrooms: 0.3,
+    glow: 0,
+    treeScale: 1,
+    density: 0.7,
+  },
+  /** a tended wood in October: yellow and russet leaves among the green */
+  autumn: {
+    types: { round: 0.45, oak: 0.3, birch: 0.2, pine: 0.05 },
+    canopy: [['#d9a02c', '#f0c850'], ['#c98a2c', '#e8b04a'], ['#6fae4a', '#9ccc62'], ['#e0b43a', '#f2d060'], ['#a3b84a', '#cfd26a']],
+    conifer: [['#2f7a45', '#4a9c5c']],
+    trunk: [['#6b4a2f', '#8a6240'], ['#7c5a3a', '#9c7a52']],
+    floor: { mul: 1.02, tint: '#b8a24a', amount: 0.2 },
+    flowers: 1.2,
+    mushrooms: 0.5,
+    glow: 0,
+    treeScale: 1.1,
+    density: 0.85,
+  },
 }
 export const MOOD_IDS = Object.keys(MOODS)
 export const DEFAULT_MOOD = 'mixed'

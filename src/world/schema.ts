@@ -95,6 +95,8 @@ export const WorldSchema = z.object({
   /** initial camera yaw when spawning at the spawn point */
   spawnYaw: z.number().optional(),
   spawnPitch: z.number().optional(),
+  /** the follow camera cranes up (raises its pitch) before it pulls in against steep ground */
+  cameraCrane: z.boolean().optional(),
   /** the part of the map worth showing [x0, z0, x1, z1]; places leave out their wooded rim */
   mapBounds: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
   place: PlaceInfoSchema.optional(),

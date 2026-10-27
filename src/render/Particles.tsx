@@ -7,6 +7,8 @@ import { hash2 } from '@/terrain/faceColors'
 import { chimneyTop } from '@/dressing/placeKinds'
 import { makePropContext } from '@/dressing/propUtil'
 import { springBasinFrame } from '@/dressing/kinds/springBasin'
+import { waterfallFrame } from '@/dressing/kinds/waterfall'
+import { hearthFrame } from '@/dressing/kinds/hearth'
 import { useTerrainVersion } from '@/editor/useTerrainVersion'
 import { useEditorStore } from '@/editor/editorStore'
 import { timeState } from './timeOfDay'
@@ -24,6 +26,10 @@ interface EmitterDef {
   color: THREE.Color
   color2?: THREE.Color
   scale: number
+  /** multiplies the point size (embers only; default 1) */
+  size?: number
+  /** simulated and drawn only while the player is this near (default 420 m + radius) */
+  range?: number
   /** motes belonging to a landmark's aura: only drawn while that aura is in force */
   aura?: string
 }
@@ -87,13 +93,21 @@ class Emitter {
     this.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(def.x, def.y, def.z), def.radius + 80)
   }
 
+  /** set particle i's velocity (no array allocated: spawn runs every frame for short-lived kinds) */
+  private v(i: number, x: number, y: number, z: number) {
+    const o = i * 3
+    this.vel[o] = x
+    this.vel[o + 1] = y
+    this.vel[o + 2] = z
+  }
+
   spawn(i: number, initial = false) {
     const d = this.def
-    const r = () => Math.random()
+    const r = Math.random
     const a = r() * Math.PI * 2
     const rad = Math.sqrt(r()) * d.radius
-    let x = d.x + Math.cos(a) * rad
-    let z = d.z + Math.sin(a) * rad
+    const x = d.x + Math.cos(a) * rad
+    const z = d.z + Math.sin(a) * rad
     let y = d.y
     const c = d.color2 && r() > 0.5 ? d.color2 : d.color
     this.color[i * 3] = c.r
@@ -101,42 +115,43 @@ class Emitter {
     this.color[i * 3 + 2] = c.b
     switch (d.kind) {
       case 'smoke':
-        this.vel.set([(r() - 0.5) * 0.6, (1.0 + r() * 1.6) * d.scale, (r() - 0.5) * 0.6], i * 3)
+        this.v(i, (r() - 0.5) * 0.6, (1.0 + r() * 1.6) * d.scale, (r() - 0.5) * 0.6)
         this.maxLife[i] = 5 + r() * 5
         break
       case 'embers':
-        this.vel.set([(r() - 0.5) * 3, 3 + r() * 5, (r() - 0.5) * 3], i * 3)
+        // scale 1: a volcano's or a forge's sparks; a hearth's are slower (scale < 1)
+        this.v(i, (r() - 0.5) * 3 * d.scale, (3 + r() * 5) * d.scale, (r() - 0.5) * 3 * d.scale)
         this.maxLife[i] = 1.5 + r() * 2.5
         break
       case 'fireflies':
         y = d.y + r() * 6
-        this.vel.set([(r() - 0.5), (r() - 0.5) * 0.4, (r() - 0.5)], i * 3)
+        this.v(i, (r() - 0.5), (r() - 0.5) * 0.4, (r() - 0.5))
         this.maxLife[i] = 4 + r() * 6
         break
       case 'leaves':
         y = d.y + 6 + r() * 9
-        this.vel.set([(r() - 0.5) * 0.8, -0.6 - r() * 0.6, (r() - 0.5) * 0.8], i * 3)
+        this.v(i, (r() - 0.5) * 0.8, -0.6 - r() * 0.6, (r() - 0.5) * 0.8)
         this.maxLife[i] = 8 + r() * 6
         break
       case 'candles':
         y = d.y + 0.6 + r() * 1.2
-        this.vel.set([0, 0, 0], i * 3)
+        this.v(i, 0, 0, 0)
         this.maxLife[i] = 6 + r() * 6
         break
       case 'dust':
         // motes of light hanging in the air, drifting barely at all
         y = d.y + 0.4 + r() * d.scale
-        this.vel.set([(r() - 0.5) * 0.25, (r() - 0.35) * 0.12, (r() - 0.5) * 0.25], i * 3)
+        this.v(i, (r() - 0.5) * 0.25, (r() - 0.35) * 0.12, (r() - 0.5) * 0.25)
         this.maxLife[i] = 9 + r() * 9
         break
       case 'wisp':
         y = d.y + 0.5 + r() * d.scale
-        this.vel.set([0, 0, 0], i * 3)
+        this.v(i, 0, 0, 0)
         this.maxLife[i] = 10 + r() * 10
         break
       case 'spore':
         y = d.y + r() * d.scale
-        this.vel.set([(r() - 0.5) * 0.4, -0.08 - r() * 0.14, (r() - 0.5) * 0.4], i * 3)
+        this.v(i, (r() - 0.5) * 0.4, -0.08 - r() * 0.14, (r() - 0.5) * 0.4)
         this.maxLife[i] = 12 + r() * 10
         break
       case 'spray':
@@ -144,15 +159,18 @@ class Emitter {
         // are a slower, softer mist that hangs a moment longer
         y = d.y + 0.02
         if (this.seed[i] < 0.3) {
-          this.vel.set([(r() - 0.5) * 0.25, (0.15 + r() * 0.25) * d.scale, (r() - 0.5) * 0.25], i * 3)
+          this.v(i, (r() - 0.5) * 0.25, (0.15 + r() * 0.25) * d.scale, (r() - 0.5) * 0.25)
           this.maxLife[i] = 0.9 + r() * 0.8
         } else {
-          this.vel.set([(r() - 0.5) * 0.9, (0.8 + r() * 0.9) * d.scale, (r() - 0.5) * 0.9], i * 3)
+          this.v(i, (r() - 0.5) * 0.9, (0.8 + r() * 0.9) * d.scale, (r() - 0.5) * 0.9)
           this.maxLife[i] = 0.35 + r() * 0.35
         }
         break
     }
-    this.pos.set([x, y, z], i * 3)
+    const o = i * 3
+    this.pos[o] = x
+    this.pos[o + 1] = y
+    this.pos[o + 2] = z
     this.life[i] = initial ? r() * this.maxLife[i] : 0
   }
 
@@ -174,7 +192,7 @@ class Emitter {
         }
         case 'embers':
           this.vel[o + 1] -= 1.5 * dt
-          this.size[i] = 0.9 * (1 - k) + 0.2
+          this.size[i] = (0.9 * (1 - k) + 0.2) * (d.size ?? 1)
           this.alpha[i] = 1 - k * k
           break
         case 'fireflies': {
@@ -275,7 +293,17 @@ function deriveEmitters(world: ReturnType<typeof useWorld>, density: number): Em
         // spray where the water falling from the carved head strikes the basin: the same context as
         // buildProps gives the piece, so the same point the builder draws the fall to
         const f = springBasinFrame(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
-        out.push({ kind: 'spray', x: f.splash[0], y: f.splash[1], z: f.splash[2], radius: 0.1, count: Math.round(30 * density), color: C('#f2f7f9'), color2: C('#d6e6ee'), scale: 1 })
+        out.push({ kind: 'spray', x: f.splash[0], y: f.splash[1], z: f.splash[2], radius: 0.1, count: Math.round(30 * density), color: C('#f2f7f9'), color2: C('#d6e6ee'), scale: 1, range: 160 })
+      } else if (p.kind === 'waterfall') {
+        // spray where the strands strike the plunge pool, wide enough to take in every strand, a
+        // little livelier for a taller drop
+        const f = waterfallFrame(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+        const drop = f.lip - f.foot
+        out.push({ kind: 'spray', x: f.spray[0], y: f.spray[1], z: f.spray[2], radius: Math.max(0.3, f.width / 2 - 0.15), count: Math.round(40 * density), color: C('#f2f7f9'), color2: C('#d6e6ee'), scale: Math.min(1.8, 1 + 0.1 * drop), range: 160 })
+      } else if (p.kind === 'hearth') {
+        // a few slow sparks off the ember bed (the hall's louvre gives the smoke)
+        const f = hearthFrame(makePropContext(lm, p, surface, meta.seaLevel, meta.seed + i))
+        out.push({ kind: 'embers', x: f.embers[0], y: f.embers[1], z: f.embers[2], radius: f.emberRadius, count: Math.round(18 * density), color: C('#ff9a3a'), color2: C('#ffd070'), scale: 0.35, size: 0.15, range: 120 })
       } else if (p.kind === 'pits') {
         out.push({ kind: 'smoke', x, y: g(x, z) + 4, z, radius: 18, count: Math.round(70 * density), color: C('#4a4046'), color2: C('#6a6068'), scale: 0.9 })
       } else {
@@ -285,8 +313,9 @@ function deriveEmitters(world: ReturnType<typeof useWorld>, density: number): Em
         if (top) out.push({ kind: 'smoke', x: top[0], y: top[1] + 0.4, z: top[2], radius: 0.25, count: Math.round(26 * density), color: C('#e4e2de'), color2: C('#cfcbc6'), scale: 0.3 })
       }
     }
-    // motes belonging to the place's own air
-    const aura = d.aura ? AURAS[d.aura] : undefined
+    // motes belonging to the place's own air (not a place-wide air landmark: its radius spans the
+    // whole map and more, so its motes would be scattered over a square kilometre at one height)
+    const aura = d.aura && !lm.id.endsWith('-air') ? AURAS[d.aura] : undefined
     if (aura?.motes) {
       const m = aura.motes
       out.push({
@@ -351,17 +380,18 @@ export function Particles() {
     additive.uniforms.uHdr.value = 1.5 + timeState.lamp * 1.8
     // smoke, leaves and spray are lit by the sun, so they go dark with it and with the weather
     normal.uniforms.uHdr.value = (0.28 + 0.72 * timeState.day) * (1 - 0.4 * timeState.gloom)
-    emitters.forEach((e, i) => {
+    for (let i = 0; i < emitters.length; i++) {
+      const e = emitters[i]
       // only simulate emitters near enough to be seen
       const d = Math.hypot(e.def.x - p.x, e.def.z - p.z)
       // fireflies and candles come out at dusk
       const nocturnal = e.def.kind === 'fireflies' || e.def.kind === 'candles'
       // motes only exist while their own aura is in force
       const inAura = !e.def.aura || (auraState.id === e.def.aura && auraState.strength > 0.03)
-      const visible = d < 420 + e.def.radius && inAura && (!nocturnal || timeState.lamp > 0.12)
+      const visible = d < (e.def.range ?? 420 + e.def.radius) && inAura && (!nocturnal || timeState.lamp > 0.12)
       points[i].visible = visible
       if (visible) e.update(dt, time.current)
-    })
+    }
   })
 
   return (

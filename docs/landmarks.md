@@ -69,11 +69,11 @@ Wooded hills of oak and beech with old ruined towers of the Men of Rhudaur hidde
 
 ### Rivendell (`rivendell`, city)
 
-The Last Homely House sits in a deep, hidden valley cut by the Bruinen: terraces, pine-scented air, waterfalls on the cliffs, lamps among the trees and a narrow bridge over the river. Warm, safe and full of song.
+The Last Homely House stands in a deep, hidden valley cut by the loud Bruinen: a steep zigzag path down from the moor, pine-scented air, the sound of falling water, lamps among the trees and a narrow bridge with no parapet.
 
 - Ground: lush (blend 0.6, radius 55 m)
 - Vegetation: density 1.3
-- Set pieces: hall x2, tower, bridge, lamp x3
+- Set pieces: hall x2, bridge, lamp x3
 - Still to do: replace procedural set pieces with kit models; tune placement in the editor; add ambient sound/fog.
 
 ### The High Pass (`high-pass`, mountain)
